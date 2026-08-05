@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Like the Greats — AI-Powered Trading Methodology Engine</title>
+<meta name="description" content="Analyze any stock through the exact methodologies of 25 legendary traders. Chris Camillo's social arbitrage. Minervini's momentum breakout. Buffett's value framework. Powered by AI.">
+<meta name="keywords" content="trading methodology, learn to trade, stock analysis, trading strategies, Mark Minervini, Chris Camillo, Warren Buffett, momentum trading, social arbitrage, trading education">
+<meta property="og:title" content="Trade Like the Greats — AI Trading Methodology Engine">
+<meta property="og:description" content="Access the minds of 25 legendary traders through an AI engine built on their exact methodologies.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://tradelikethegreats.com/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trade Like the Greats","applicationCategory":"FinanceApplication","description":"AI-powered trading methodology engine featuring 25 legendary traders","offers":{"@type":"Offer","priceCurrency":"USD","price":"19"}}</script>
+<link rel="stylesheet" href="brand.css">
+<style>
+/* ── HERO ── */
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 0 80px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--navy-border);
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 75% 40%, rgba(0,200,150,0.05) 0%, transparent 70%),
+    linear-gradient(180deg, var(--navy) 0%, var(--navy-mid) 100%);
+  pointer-events: none;
+}
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--navy-border) 1px, transparent 1px), linear-gradient(90deg, var(--navy-border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.hero-content { position: relative; z-index: 2; max-width: 760px; }
+h1 { margin-bottom: 24px; }
+.hero-sub {
+  font-size: 18px;
+  color: var(--slate-light);
+  line-height: 1.7;
+  max-width: 560px;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+.hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+.hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-top: 40px;
+  border-top: 1px solid var(--navy-border);
+  flex-wrap: wrap;
+  gap: 0;
+}
+.stat-block {
+  padding: 0 36px 0 0;
+  margin-right: 36px;
+  border-right: 1px solid var(--navy-border);
+}
+.stat-block:last-child { border-right: none; margin-right: 0; }
+.stat-block:first-child { padding-left: 0; }
+.stat-num { font-family: var(--serif); font-size: 32px; font-weight: 700; color: var(--white); line-height: 1; display: block; }
+.stat-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--slate); text-transform: uppercase; margin-top: 4px; display: block; }
+
+/* ── ARCHETYPE STRIP ── */
+.archetype-strip { padding: 48px 0; background: var(--navy-mid); border-bottom: 1px solid var(--navy-border); }
+.archetype-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.archetype-chip {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--navy-border);
+  color: var(--slate);
+  cursor: default;
+  transition: all 0.2s;
+}
+.archetype-chip:hover { border-color: var(--emerald-dim); color: var(--emerald); background: var(--emerald-bg); }
+.archetype-chip.active { border-color: var(--emerald-dim); color: var(--emerald); background: var(--emerald-bg); }
+
+/* ── HOW IT WORKS ── */
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+.step { background: var(--navy-mid); padding: 36px 32px; position: relative; overflow: hidden; }
+.step::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--navy-border); transition: background 0.2s; }
+.step:hover::before { background: var(--emerald); }
+.step-num { font-family: var(--mono); font-size: 11px; color: var(--emerald); letter-spacing: 0.1em; margin-bottom: 16px; }
+.step h3 { font-size: 20px; margin-bottom: 10px; }
+.step p { font-size: 14px; line-height: 1.7; }
+
+/* ── TERMINAL ── */
+.terminal-wrap { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: var(--radius-lg); overflow: hidden; }
+.terminal-top { background: var(--navy-light); padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--navy-border); }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #E55C5C; } .dot-y { background: #D4A017; } .dot-g { background: var(--emerald); }
+.term-label { font-family: var(--mono); font-size: 11px; color: var(--slate); margin-left: 8px; }
+.terminal-body { padding: 24px; }
+.term-line { font-family: var(--mono); font-size: 12px; display: flex; gap: 10px; margin-bottom: 16px; }
+.term-prompt { color: var(--emerald); flex-shrink: 0; }
+.term-cmd { color: var(--slate-light); }
+.term-output {
+  font-size: 14px;
+  color: var(--off-white);
+  line-height: 1.8;
+  border-left: 2px solid var(--emerald);
+  padding-left: 16px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.term-output strong { color: var(--emerald); }
+
+/* ── TRADERS PREVIEW ── */
+.traders-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-top: 48px; }
+.trader-tile {
+  background: var(--navy-mid);
+  padding: 22px 18px;
+  border-top: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+}
+.trader-tile:hover { background: var(--navy-light); border-top-color: var(--emerald); }
+.tile-archetype { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--emerald-dim); text-transform: uppercase; margin-bottom: 8px; }
+.tile-name { font-family: var(--serif); font-size: 15px; font-weight: 500; color: var(--white); margin-bottom: 6px; line-height: 1.2; }
+.tile-doctrine { font-size: 12px; color: var(--slate); line-height: 1.5; }
+
+/* ── PICKS PREVIEW ── */
+.picks-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.picks-card { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: var(--radius-lg); overflow: hidden; }
+.picks-head { background: var(--navy-light); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--navy-border); }
+.picks-head-title { font-family: var(--mono); font-size: 11px; color: var(--emerald); letter-spacing: 0.08em; text-transform: uppercase; }
+.picks-head-date { font-family: var(--mono); font-size: 11px; color: var(--slate); }
+.pick-row { padding: 16px 20px; border-bottom: 1px solid var(--navy-border); display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; }
+.pick-row:last-child { border-bottom: none; }
+.pick-ticker { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--emerald); }
+.pick-meta { display: flex; flex-direction: column; gap: 3px; }
+.pick-by { font-family: var(--mono); font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.05em; }
+.pick-desc { font-size: 12px; color: var(--slate-light); line-height: 1.4; }
+.signal { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 3px; letter-spacing: 0.06em; }
+.s-strong { background: rgba(0,200,150,0.1); color: var(--emerald); border: 1px solid var(--emerald-dim); }
+.s-watch { background: rgba(212,160,23,0.1); color: #D4A017; border: 1px solid rgba(212,160,23,0.3); }
+.s-review { background: rgba(229,92,92,0.1); color: var(--danger); border: 1px solid rgba(229,92,92,0.3); }
+.picks-disclaimer { font-family: var(--mono); font-size: 10px; color: var(--slate); padding: 10px 20px; background: var(--navy-light); border-top: 1px solid var(--navy-border); }
+
+/* ── FAQ ── */
+.faq-list { display: flex; flex-direction: column; gap: 2px; margin-top: 48px; }
+.faq-item { background: var(--navy-mid); border: 1px solid var(--navy-border); border-radius: var(--radius); overflow: hidden; }
+.faq-q { width: 100%; text-align: left; background: none; border: none; padding: 20px 24px; font-family: var(--sans); font-size: 15px; font-weight: 500; color: var(--off-white); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.faq-q:hover { color: var(--white); }
+.faq-icon { font-family: var(--mono); font-size: 18px; color: var(--emerald); flex-shrink: 0; transition: transform 0.2s; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a { display: none; padding: 0 24px 20px; font-size: 14px; color: var(--slate-light); line-height: 1.7; border-top: 1px solid var(--navy-border); padding-top: 16px; }
+.faq-item.open .faq-a { display: block; }
+
+/* ── CTA BAND ── */
+.cta-band { background: var(--navy-light); border-top: 1px solid var(--navy-border); border-bottom: 1px solid var(--navy-border); }
+.cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 48px 0; flex-wrap: wrap; }
+.cta-band h2 { font-size: clamp(22px, 3vw, 32px); margin-bottom: 8px; }
+.cta-band p { font-size: 15px; color: var(--slate-light); max-width: 480px; }
+.cta-band-actions { display: flex; gap: 12px; flex-shrink: 0; }
+
+@media (max-width: 860px) {
+  .steps-grid { grid-template-columns: 1fr; }
+  .traders-grid { grid-template-columns: repeat(2, 1fr); }
+  .picks-layout { grid-template-columns: 1fr; }
+  .hero-stats { gap: 20px; }
+  .stat-block { border-right: none; margin-right: 0; padding-right: 0; }
+  .cta-band-inner { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .traders-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="nav-placeholder"></div>
+
+<main>
+<!-- ── HERO ── -->
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="hero-bg"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hero-content">
+      <p class="label">AI-Powered Trading Methodology Engine</p>
+      <h1 id="hero-heading">Analyze the market<br>like <em>the greats</em> do.</h1>
+      <p class="hero-sub">Access the exact frameworks of 25 legendary traders — their entry rules, conviction signals, and exit logic — through an AI engine that thinks the way they do.</p>
+      <div class="hero-actions">
+        <a href="pricing.html" class="btn btn-primary">
+          Get access
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="how-it-works.html" class="btn btn-outline">See how it works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-block"><span class="stat-num">25</span><span class="stat-lbl">Legendary traders</span></div>
+        <div class="stat-block"><span class="stat-num">7</span><span class="stat-lbl">Trading archetypes</span></div>
+        <div class="stat-block"><span class="stat-num">Daily</span><span class="stat-lbl">Curated picks</span></div>
+        <div class="stat-block"><span class="stat-num">100%</span><span class="stat-lbl">Educational content</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ARCHETYPES ── -->
+<div class="archetype-strip">
+  <div class="container">
+    <div class="archetype-row">
+      <span class="archetype-chip active">Social Arbitrage</span>
+      <span class="archetype-chip">Momentum Breakout</span>
+      <span class="archetype-chip">Value / Fundamental</span>
+      <span class="archetype-chip">Macro Trend</span>
+      <span class="archetype-chip">Quantitative</span>
+      <span class="archetype-chip">Contrarian</span>
+      <span class="archetype-chip">Day Trading</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section aria-labelledby="how-heading">
+  <div class="container">
+    <p class="label">How it works</p>
+    <h2 id="how-heading">Three moves. Real methodology.</h2>
+    <p class="text-muted" style="max-width:500px;">Every feature maps to a real trader's documented approach. Nothing is hypothetical.</p>
+    <div class="steps-grid">
+      <div class="step">
+        <p class="step-num">01 &mdash; Choose</p>
+        <h3>Pick a legendary trader</h3>
+        <p>Browse 25 traders across 7 archetypes. Each one has a distinct methodology, doctrine, and AI persona that speaks in their voice.</p>
+      </div>
+      <div class="step">
+        <p class="step-num">02 &mdash; Analyze</p>
+        <h3>Run any ticker through their lens</h3>
+        <p>Enter any stock symbol. The AI engine applies that trader's exact rules — entry criteria, red flags, position sizing logic, and exit discipline.</p>
+      </div>
+      <div class="step">
+        <p class="step-num">03 &mdash; Discover</p>
+        <h3>Wake up to daily curated picks</h3>
+        <p>Elite members receive daily picks already scanned by the methodologies. The frameworks run overnight. You review and decide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ENGINE DEMO ── -->
+<section style="background:var(--navy-mid);" aria-labelledby="engine-heading">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;">
+      <div>
+        <p class="label">The AI engine</p>
+        <h2 id="engine-heading">Every trader has<br>a distinct voice.</h2>
+        <p style="margin-bottom:24px;">Camillo sounds like Camillo. Minervini sounds like Minervini. Each engine is built on their documented rules, books, interviews, and stated methodology — not generic stock advice.</p>
+        <ul class="check-list">
+          <li>Entry signals, red flags, and exit logic for every trader</li>
+          <li>Live market data grounds every analysis on Pro and Elite</li>
+          <li>Compare two or more traders on the same ticker side by side</li>
+          <li>Unlimited queries — analyze as many stocks as you want</li>
+        </ul>
+        <div style="margin-top:28px;"><a href="how-it-works.html" class="btn btn-outline">Learn how the engine works</a></div>
+      </div>
+      <div class="terminal-wrap">
+        <div class="terminal-top">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span class="term-label">Engine &mdash; Chris Camillo / Social Arbitrage</span>
+        </div>
+        <div class="terminal-body">
+          <div class="term-line"><span class="term-prompt">&rsaquo;</span><span class="term-cmd">Analyze SOFI through Camillo's social arbitrage lens</span></div>
+          <div class="term-output">
+            <strong>Information asymmetry detected.</strong> Fintech adoption among Gen Z is accelerating sharply in community-driven forums and Discord servers, while institutional coverage remains anchored to legacy banking comparables. Camillo's doctrine: <strong>position when social discourse is 6&ndash;18 months ahead of Wall Street's pricing model.</strong> The thesis requires a catalyst to close the gap — an earnings beat with forward guidance shift is the most probable trigger. Watch for a surge in new account disclosures versus analyst expectations.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TRADERS PREVIEW ── -->
+<section aria-labelledby="traders-heading">
+  <div class="container">
+    <p class="label">The roster</p>
+    <h2 id="traders-heading">25 legends. One engine.</h2>
+    <p class="text-muted" style="max-width:480px;margin-bottom:0;">Every major trading archetype represented. Their methodology encoded and queryable.</p>
+    <div class="traders-grid" id="traders-preview"></div>
+    <div style="margin-top:24px;text-align:center;">
+      <a href="traders.html" class="btn btn-outline">View all 25 traders</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── DAILY PICKS ── -->
+<section style="background:var(--navy-mid);" aria-labelledby="picks-heading">
+  <div class="container">
+    <div class="picks-layout">
+      <div>
+        <p class="label">Elite feature</p>
+        <h2 id="picks-heading">Wake up to picks already screened by <em>the greats.</em></h2>
+        <p style="margin-bottom:20px;">Every morning, the methodologies run an overnight scan. Social arbitrage plays from Camillo. Momentum breakouts from Minervini. Value setups from Graham's framework. You review. You decide.</p>
+        <p style="font-size:13px;color:var(--slate);">Educational methodology analysis only. Not personalized investment advice.</p>
+        <div style="margin-top:28px;"><a href="pricing.html" class="btn btn-primary">Get Elite access</a></div>
+      </div>
+      <div>
+        <div class="picks-card">
+          <div class="picks-head">
+            <span class="picks-head-title">Today's methodology picks</span>
+            <span class="picks-head-date">Elite members</span>
+          </div>
+          <div class="pick-row">
+            <span class="pick-ticker">SOFI</span>
+            <div class="pick-meta"><span class="pick-by">Camillo &middot; Social Arb</span><span class="pick-desc">Fintech narrative ahead of institutional coverage by 4+ months</span></div>
+            <span class="signal s-strong">STRONG</span>
+          </div>
+          <div class="pick-row">
+            <span class="pick-ticker">PLTR</span>
+            <div class="pick-meta"><span class="pick-by">Minervini &middot; Momentum</span><span class="pick-desc">Stage 2 base, volume contraction, RS rank top 5%</span></div>
+            <span class="signal s-watch">WATCH</span>
+          </div>
+          <div class="pick-row">
+            <span class="pick-ticker">HOOD</span>
+            <div class="pick-meta"><span class="pick-by">Lynch &middot; Growth/Value</span><span class="pick-desc">Retail investing secular trend, PEG undervaluation</span></div>
+            <span class="signal s-watch">WATCH</span>
+          </div>
+          <div class="pick-row">
+            <span class="pick-ticker">IONQ</span>
+            <div class="pick-meta"><span class="pick-by">Simons &middot; Quant</span><span class="pick-desc">Elevated institutional accumulation pattern detected</span></div>
+            <span class="signal s-review">REVIEW</span>
+          </div>
+          <div class="picks-disclaimer">Educational analysis only &mdash; not investment advice</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section aria-labelledby="faq-heading">
+  <div class="container" style="max-width:760px;">
+    <p class="label">Common questions</p>
+    <h2 id="faq-heading">What people ask before signing up</h2>
+    <div class="faq-list" itemscope itemtype="https://schema.org/FAQPage">
+      <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">Do I need to be an experienced trader to use this?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">No. The platform is designed for anyone who wants to understand how legendary traders think — from beginners studying frameworks for the first time to experienced traders stress-testing their own thesis against a different methodology. The AI engine explains its reasoning at every step.</p>
+        </div>
+      </div>
+      <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">Is this investment advice?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">No. Everything on this platform is educational and informational only. The AI engine applies documented trading methodologies to help you think through a setup — it does not provide personalized investment advice or recommendations to buy or sell any security. Always do your own research and consult a qualified financial advisor before making investment decisions.</p>
+        </div>
+      </div>
+      <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">How accurate are the trader AI personas?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Each persona is built on publicly documented methodology — books, interviews, documented trades, and stated rules. We are interpreting and teaching these frameworks, not claiming to represent the traders themselves. The goal is to help you internalize how each trader thinks, not to simulate the actual person.</p>
+        </div>
+      </div>
+      <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">What is the daily picks feature?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Elite members receive a daily curated list of stocks that the platform's methodology engines have flagged as matching specific trader criteria — for example, a social arbitrage signal consistent with Camillo's framework or a momentum breakout pattern matching Minervini's Stage 2 criteria. These are educational scans, not buy recommendations.</p>
+        </div>
+      </div>
+      <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">Are there any limits on AI engine queries?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">No. All paid tiers include unlimited AI engine queries. Starter members access 5 traders with unlimited queries. Pro and Elite members access all 25 traders with unlimited queries. We don't believe in artificial caps on learning.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA BAND ── -->
+<div class="cta-band">
+  <div class="container">
+    <div class="cta-band-inner">
+      <div>
+        <h2>Stop guessing. Start thinking like <em>the greats.</em></h2>
+        <p>Access 25 legendary trader methodologies through an AI engine built for serious students of the market.</p>
+      </div>
+      <div class="cta-band-actions">
+        <a href="pricing.html" class="btn btn-primary">Get access</a>
+        <a href="traders.html" class="btn btn-outline">Meet the traders</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div id="footer-placeholder"></div>
+
+<script src="components.js"></script>
+<script>
+const TRADERS = [
+  {name:'Chris Camillo', arch:'Social Arbitrage', doc:'Find where society is ahead of Wall Street'},
+  {name:'Mark Minervini', arch:'Momentum Breakout', doc:'Buy tight, sell right, cut losses fast'},
+  {name:'Jesse Livermore', arch:'Trend Following', doc:'The market is never wrong — opinions are'},
+  {name:'Warren Buffett', arch:'Value / Fundamental', doc:'Buy wonderful companies at fair prices'},
+  {name:'Peter Lynch', arch:'Growth at Value', doc:'Invest in what you know and understand'},
+  {name:'George Soros', arch:'Macro / Reflexivity', doc:'Markets are driven by perception, not reality'},
+  {name:'Jim Simons', arch:'Quantitative', doc:'Patterns in data reveal patterns in markets'},
+  {name:'Paul Tudor Jones', arch:'Macro Trend', doc:'Focus on risk first, always'},
+  {name:'Stan Druckenmiller', arch:'Macro / Momentum', doc:'Concentrate in your best ideas'},
+  {name:'Ross Cameron', arch:'Day Trading', doc:'High volatility, defined risk, quick exits'},
+];
+const grid = document.getElementById('traders-preview');
+TRADERS.forEach(t => {
+  const a = document.createElement('a');
+  a.href = 'traders.html';
+  a.className = 'trader-tile';
+  a.innerHTML = `<p class="tile-archetype">${t.arch}</p><p class="tile-name">${t.name}</p><p class="tile-doctrine">${t.doc}</p>`;
+  grid.appendChild(a);
+});
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const open = item.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open);
+}
+</script>
+</body>
+</html>

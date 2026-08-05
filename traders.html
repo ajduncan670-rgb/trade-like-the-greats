@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>The 25 Greatest Traders — Trade Like the Greats</title>
+<meta name="description" content="Explore 25 legendary traders including Chris Camillo, Mark Minervini, Warren Buffett, Jesse Livermore, George Soros, and Jim Simons. Learn their methodologies through AI-powered analysis.">
+<link rel="canonical" href="https://tradelikethegreats.com/traders.html">
+<link rel="stylesheet" href="brand.css">
+<style>
+.traders-hero{padding:72px 0 48px;border-bottom:1px solid var(--navy-border);}
+.traders-hero h1{font-size:clamp(30px,5vw,52px);margin-bottom:14px;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:32px 0 40px;}
+.filter-btn{font-family:var(--mono);font-size:11px;letter-spacing:.07em;padding:7px 16px;border-radius:99px;border:1px solid var(--navy-border);color:var(--slate);background:none;cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--emerald-dim);color:var(--emerald);background:var(--emerald-bg);}
+.traders-full-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.trader-card{background:var(--navy-mid);padding:26px 22px;border-top:2px solid transparent;transition:all .2s;cursor:pointer;text-decoration:none;display:block;}
+.trader-card:hover{background:var(--navy-light);border-top-color:var(--emerald);}
+.tc-arch{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--emerald-dim);text-transform:uppercase;margin-bottom:8px;}
+.tc-name{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--white);margin-bottom:8px;line-height:1.2;}
+.tc-doctrine{font-size:12px;color:var(--slate);line-height:1.55;margin-bottom:12px;}
+.tc-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tc-tag{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:99px;border:1px solid var(--navy-border);color:var(--slate);}
+@media(max-width:860px){.traders-full-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.traders-full-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<main>
+<section class="traders-hero">
+  <div class="container">
+    <p class="label">The roster</p>
+    <h1>25 traders. Every major<br>school of thought.</h1>
+    <p style="font-size:16px;color:var(--slate-light);max-width:520px;line-height:1.7;">From Livermore's tape reading to Camillo's social arbitrage — the full spectrum of how the world's greatest investors have read and beaten the market.</p>
+  </div>
+</section>
+<section>
+  <div class="container">
+    <div class="filter-row" id="filter-row"></div>
+    <div class="traders-full-grid" id="traders-grid"></div>
+  </div>
+</section>
+</main>
+<div id="footer-placeholder"></div>
+<script src="components.js"></script>
+<script>
+const ALL=[
+  {name:'Chris Camillo',arch:'Social Arbitrage',doc:'Find information gaps between social discourse and institutional pricing before the market catches up.',tags:['Long-term','Catalyst-driven','Social signals']},
+  {name:'Mark Minervini',arch:'Momentum Breakout',doc:'Trade only the strongest stocks breaking out of tight bases on high volume.',tags:['Stage 2','Breakout','RS leader']},
+  {name:'Jesse Livermore',arch:'Trend Following',doc:'The market is never wrong. Follow the path of least resistance.',tags:['Price action','Tape reading','Trend']},
+  {name:'Warren Buffett',arch:'Value / Fundamental',doc:'Buy wonderful companies at fair prices and hold them forever.',tags:['Long-term','Quality','Moat']},
+  {name:'Peter Lynch',arch:'Growth at Value',doc:'Invest in what you understand. The best ideas are often hiding in plain sight.',tags:['PEG ratio','Consumer','Growth']},
+  {name:'George Soros',arch:'Macro / Reflexivity',doc:'Markets are driven by perception, not reality. Find where the two diverge.',tags:['Macro','Currency','Reflexivity']},
+  {name:'Jim Simons',arch:'Quantitative',doc:'Patterns in data reveal patterns in markets. Emotion has no place in the process.',tags:['Statistical edge','Systematic','Data-driven']},
+  {name:'Paul Tudor Jones',arch:'Macro Trend',doc:'Losers average losers. Risk management is the only edge that matters.',tags:['Risk first','Macro','Momentum']},
+  {name:'Stan Druckenmiller',arch:'Macro / Momentum',doc:'Concentrate in your best ideas. Diversification is for people who don\'t know what they are doing.',tags:['Conviction','Macro','Concentration']},
+  {name:'Ross Cameron',arch:'Day Trading',doc:'Find the strongest momentum name of the day. Define risk. Execute cleanly.',tags:['Intraday','Float','Momentum']},
+  {name:'Benjamin Graham',arch:'Deep Value',doc:'Margin of safety is the bedrock. Never pay too much for any stock.',tags:['Value','P/B ratio','Margin of safety']},
+  {name:'William O\'Neil',arch:'Momentum Breakout',doc:'Buy the fastest-growing companies at the exact right moment using CAN SLIM.',tags:['CAN SLIM','Earnings','Breakout']},
+  {name:'Nicolas Darvas',arch:'Momentum Breakout',doc:'Follow price action inside defined boxes. Ignore the noise.',tags:['Box theory','Price action','Trend']},
+  {name:'David Tepper',arch:'Distressed Value',doc:'Be greedy when others are fearful. The best opportunities are in crisis.',tags:['Distressed','Contrarian','Macro']},
+  {name:'Carl Icahn',arch:'Activist / Contrarian',doc:'Find undervalued companies with lazy management and unlock the value.',tags:['Activist','Contrarian','Catalyst']},
+  {name:'Ed Seykota',arch:'Trend Following',doc:'The market pays you to be patient and punishes you for being clever.',tags:['Systems','Trend','Position sizing']},
+  {name:'Michael Burry',arch:'Deep Contrarian',doc:'Read the prospectus. Everyone else is too lazy to do the work.',tags:['Contrarian','Credit analysis','Thesis-driven']},
+  {name:'Howard Marks',arch:'Contrarian / Value',doc:'You can\'t predict, but you can prepare. Second-level thinking is everything.',tags:['Second-level','Cycles','Risk']},
+  {name:'Ray Dalio',arch:'Macro / Systematic',doc:'Understand the machine. Economic cycles are predictable if you study history.',tags:['All-weather','Macro','Systematic']},
+  {name:'Cathie Wood',arch:'Disruptive Innovation',doc:'Invest in the convergence of exponential technologies five years before the crowd.',tags:['Innovation','5-year horizon','ARK']},
+  {name:'Tom Basso',arch:'Trend Following',doc:'Trade systems, not emotions. The process is what you can control.',tags:['Systematic','Trend','Psychology']},
+  {name:'Linda Raschke',arch:'Short-term Momentum',doc:'The market is just a series of patterns repeating. Learn to read them.',tags:['Short-term','Technical','Patterns']},
+  {name:'Jack Schwager',arch:'Framework / Meta',doc:'The common thread among all great traders is discipline and risk management.',tags:['Risk management','Discipline','Framework']},
+  {name:'Dan Zanger',arch:'Momentum Breakout',doc:'Pattern recognition and chart mastery. The setup is everything.',tags:['Chart patterns','Breakout','Technical']},
+  {name:'Marty Schwartz',arch:'Day Trading',doc:'The most important rule is to play great defense, not great offense.',tags:['Defense','Intraday','Technical']},
+];
+const ARCHS=[...new Set(ALL.map(t=>t.arch))];
+let active='All';
+function render(){
+  const grid=document.getElementById('traders-grid');
+  grid.innerHTML='';
+  ALL.filter(t=>active==='All'||t.arch===active).forEach(t=>{
+    const a=document.createElement('a');
+    a.href='pricing.html';
+    a.className='trader-card';
+    a.innerHTML=`<p class="tc-arch">${t.arch}</p><p class="tc-name">${t.name}</p><p class="tc-doctrine">${t.doc}</p><div class="tc-tags">${t.tags.map(g=>`<span class="tc-tag">${g}</span>`).join('')}</div>`;
+    grid.appendChild(a);
+  });
+}
+function buildFilters(){
+  const row=document.getElementById('filter-row');
+  ['All',...ARCHS].forEach(a=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn'+(a==='All'?' active':'');
+    btn.textContent=a;
+    btn.onclick=()=>{
+      active=a;
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    };
+    row.appendChild(btn);
+  });
+}
+buildFilters();render();
+</script>
+</body>
+</html>

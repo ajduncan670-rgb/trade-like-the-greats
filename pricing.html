@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — Trade Like the Greats</title>
+<meta name="description" content="Starter at $19/mo, Pro at $39/mo, Elite at $69/mo. Unlimited AI engine queries on every paid tier. No caps on learning.">
+<link rel="canonical" href="https://tradelikethegreats.com/pricing.html">
+<link rel="stylesheet" href="brand.css">
+<style>
+.pricing-hero { padding: 72px 0 56px; border-bottom: 1px solid var(--navy-border); }
+.pricing-hero h1 { font-size: clamp(32px,5vw,56px); margin-bottom: 16px; }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+.plan { background: var(--navy-mid); padding: 36px 32px; position: relative; border-top: 2px solid var(--navy-border); transition: border-color 0.2s; }
+.plan:hover { border-top-color: var(--emerald); }
+.plan.featured { background: var(--navy-light); border-top-color: var(--emerald); }
+.plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--emerald); color: var(--navy); font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; padding: 3px 14px; border-radius: 99px; white-space: nowrap; }
+.plan-tier { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); margin-bottom: 14px; }
+.plan-price { font-family: var(--serif); font-size: 52px; font-weight: 700; color: var(--white); line-height: 1; }
+.plan-price sup { font-size: 24px; vertical-align: top; margin-top: 10px; }
+.plan-price sub { font-size: 14px; color: var(--slate); font-family: var(--sans); font-weight: 300; }
+.plan-tagline { font-size: 14px; color: var(--slate-light); margin: 10px 0 24px; line-height: 1.5; }
+hr.plan-rule { border: none; border-top: 1px solid var(--navy-border); margin: 20px 0; }
+.plan-features { list-style: none; display: flex; flex-direction: column; gap: 11px; margin-bottom: 28px; }
+.plan-features li { font-size: 13px; color: var(--slate-light); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+.plan-features li svg { width: 14px; height: 14px; stroke: var(--emerald); fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+.plan-features li.off svg { stroke: var(--slate); }
+.plan-features li.off { color: var(--slate); }
+.plan-btn { display: block; width: 100%; padding: 14px; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: 0.03em; border-radius: var(--radius); border: none; cursor: pointer; text-align: center; text-decoration: none; transition: all 0.2s; }
+.pb-primary { background: var(--emerald); color: var(--navy); }
+.pb-primary:hover { opacity: 0.88; }
+.pb-outline { background: transparent; color: var(--slate-light); border: 1px solid var(--navy-border); }
+.pb-outline:hover { border-color: var(--slate); color: var(--white); }
+.compare-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+.compare-table th { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--slate); padding: 12px 16px; text-align: center; border-bottom: 1px solid var(--navy-border); }
+.compare-table th:first-child { text-align: left; }
+.compare-table td { padding: 13px 16px; border-bottom: 1px solid var(--navy-border); color: var(--slate-light); text-align: center; }
+.compare-table td:first-child { text-align: left; color: var(--off-white); font-size: 13px; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+.check-y { color: var(--emerald); font-size: 16px; }
+.check-n { color: var(--slate); font-size: 14px; }
+@media(max-width:860px){ .pricing-grid{grid-template-columns:1fr;} .plan.featured{border:1px solid var(--emerald);} }
+</style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<main>
+<section class="pricing-hero">
+  <div class="container">
+    <p class="label">Pricing</p>
+    <h1>Unlimited queries.<br>Every paid tier.</h1>
+    <p style="font-size:17px;color:var(--slate-light);max-width:500px;line-height:1.7;">We don't cap how much you can learn. The difference between tiers is breadth of access and features — not artificial limits on the AI engine.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="pricing-grid">
+      <div class="plan">
+        <p class="plan-tier">Starter</p>
+        <p class="plan-price"><sup>$</sup>19<sub>/mo</sub></p>
+        <p class="plan-tagline">Learn 5 methodologies with unlimited AI access.</p>
+        <hr class="plan-rule">
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> 5 trader profiles</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Unlimited AI engine queries</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Live market data</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Personal watchlists</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Multi-trader comparison</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Daily curated picks</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Push notifications</li>
+        </ul>
+        <a href="#" class="plan-btn pb-outline">Get started</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">Most popular</div>
+        <p class="plan-tier">Pro</p>
+        <p class="plan-price"><sup>$</sup>39<sub>/mo</sub></p>
+        <p class="plan-tagline">The full roster with live data and watchlists.</p>
+        <hr class="plan-rule">
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> All 25 trader profiles</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Unlimited AI engine queries</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Live market data + technicals</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Personal watchlists</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Multi-trader comparison</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Daily curated picks</li>
+          <li class="off"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg> Push notifications</li>
+        </ul>
+        <a href="#" class="plan-btn pb-primary">Get started</a>
+      </div>
+      <div class="plan">
+        <p class="plan-tier">Elite</p>
+        <p class="plan-price"><sup>$</sup>69<sub>/mo</sub></p>
+        <p class="plan-tagline">Everything, plus daily picks and alerts.</p>
+        <hr class="plan-rule">
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> All 25 trader profiles</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Unlimited AI engine queries</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Live market data + technicals</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Personal watchlists</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Multi-trader comparison view</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Daily curated picks</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Push notifications and alerts</li>
+        </ul>
+        <a href="#" class="plan-btn pb-outline">Get started</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--navy-mid);">
+  <div class="container">
+    <p class="label">Full comparison</p>
+    <h2>Everything side by side</h2>
+    <table class="compare-table">
+      <thead><tr><th>Feature</th><th>Starter</th><th>Pro</th><th>Elite</th></tr></thead>
+      <tbody>
+        <tr><td>Trader profiles</td><td>5 traders</td><td>All 25</td><td>All 25</td></tr>
+        <tr><td>AI engine queries</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+        <tr><td>Live market data</td><td><span class="check-n">—</span></td><td><span class="check-y">✓</span></td><td><span class="check-y">✓</span></td></tr>
+        <tr><td>Personal watchlists</td><td><span class="check-n">—</span></td><td><span class="check-y">✓</span></td><td><span class="check-y">✓</span></td></tr>
+        <tr><td>Multi-trader comparison</td><td><span class="check-n">—</span></td><td><span class="check-n">—</span></td><td><span class="check-y">✓</span></td></tr>
+        <tr><td>Daily curated picks</td><td><span class="check-n">—</span></td><td><span class="check-n">—</span></td><td><span class="check-y">✓</span></td></tr>
+        <tr><td>Push notifications</td><td><span class="check-n">—</span></td><td><span class="check-n">—</span></td><td><span class="check-y">✓</span></td></tr>
+        <tr><td>Price per month</td><td>$19</td><td>$39</td><td>$69</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</main>
+<div id="footer-placeholder"></div>
+<script src="components.js"></script>
+</body>
+</html>
