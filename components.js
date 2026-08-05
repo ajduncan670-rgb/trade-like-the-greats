@@ -1,4 +1,3 @@
-// ── Shared nav + footer for all pages ──
 const CURRENT_PAGE = window.location.pathname.split('/').pop() || 'index.html';
 
 const TRADERS_TICKER = [
@@ -10,8 +9,8 @@ const TRADERS_TICKER = [
   'Benjamin Graham · Margin of Safety','William O\'Neil · CAN SLIM',
   'David Tepper · Distressed Value','Carl Icahn · Activist Contrarian',
   'Nicolas Darvas · Box Theory','Ed Seykota · Systems Trading',
-  'Michael Burry · Deep Contrarian','Cathie Wood · Disruptive Innovation',
-  'Howard Marks · Second-Level Thinking','Ray Dalio · All-Weather Portfolio',
+  'Michael Burry · Deep Contrarian','Howard Marks · Second-Level Thinking',
+  'Ray Dalio · All-Weather Portfolio','Cathie Wood · Disruptive Innovation',
 ];
 
 function buildTicker() {
@@ -30,7 +29,7 @@ function injectNav() {
     <div class="ticker-bar" aria-hidden="true"><div class="ticker-track">${buildTicker()}</div></div>
     <nav id="site-nav" role="navigation" aria-label="Main navigation">
       <div class="nav-inner">
-        <a href="index.html" class="nav-logo">Trade Like <span>the Greats</span></a>
+        <a href="index.html" class="nav-logo">Trader <span>Atlas</span></a>
         <ul class="nav-links" role="list">
           <li><a href="how-it-works.html" ${navActive('how-it-works.html')}>How it works</a></li>
           <li><a href="traders.html" ${navActive('traders.html')}>The 25 Greats</a></li>
@@ -70,8 +69,9 @@ function injectFooter() {
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <a href="index.html" class="nav-logo" style="font-size:16px;">Trade Like <span>the Greats</span></a>
+            <a href="index.html" class="nav-logo" style="font-size:16px;">Trader <span>Atlas</span></a>
             <p>An AI-powered trading methodology engine that lets you analyze any stock through the frameworks of 25 legendary traders. Built for serious students of the market.</p>
+            <p style="margin-top:10px;font-style:italic;font-size:13px;color:var(--slate);">Trade like the greats.</p>
           </div>
           <div class="footer-col">
             <h5>Product</h5>
@@ -99,8 +99,8 @@ function injectFooter() {
           </div>
         </div>
         <div class="footer-bottom">
-          <p class="footer-legal">All content is for educational and informational purposes only. Nothing on this platform constitutes personalized investment advice or a solicitation to buy or sell any security. Trade Like the Greats is not affiliated with, endorsed by, or connected to any of the traders or individuals referenced. Past methodology performance does not guarantee future results. Always conduct your own research and consult a qualified financial advisor before making investment decisions.</p>
-          <p class="footer-copy">© ${new Date().getFullYear()} Trade Like the Greats</p>
+          <p class="footer-legal">All content is for educational and informational purposes only. Nothing on this platform constitutes personalized investment advice or a solicitation to buy or sell any security. Trader Atlas is not affiliated with, endorsed by, or connected to any of the traders or individuals referenced. Past methodology performance does not guarantee future results. Always conduct your own research and consult a qualified financial advisor before making investment decisions.</p>
+          <p class="footer-copy">© ${new Date().getFullYear()} Trader Atlas</p>
         </div>
       </div>
     </footer>`;
