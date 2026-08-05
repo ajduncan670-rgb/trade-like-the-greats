@@ -97,28 +97,27 @@ h1 {
   margin-bottom: 64px;
 }
 .hero-stats {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 0;
   padding-top: 40px;
   border-top: 1px solid var(--navy-border);
   width: 100%;
-  flex-wrap: wrap;
 }
 .stat-block {
-  padding: 0 40px;
+  padding: 0 24px;
   border-right: 1px solid var(--navy-border);
   text-align: center;
 }
 .stat-block:last-child { border-right: none; }
 .stat-num {
   font-family: var(--serif);
-  font-size: 34px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--white);
   line-height: 1;
   display: block;
+  white-space: nowrap;
 }
 .stat-lbl {
   font-family: var(--mono);
@@ -128,6 +127,7 @@ h1 {
   text-transform: uppercase;
   margin-top: 6px;
   display: block;
+  white-space: nowrap;
 }
 
 /* ── TRUST BAR ── */
@@ -295,8 +295,10 @@ h1 {
   .steps-grid { grid-template-columns: 1fr; }
   .traders-grid { grid-template-columns: repeat(2, 1fr); }
   .picks-layout { grid-template-columns: 1fr; }
-  .hero-stats { gap: 24px; }
-  .stat-block { border-right: none; padding: 0 20px; }
+  .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .stat-block { border-right: none; border-bottom: 1px solid var(--navy-border); padding: 16px; }
+  .stat-block:nth-child(odd) { border-right: 1px solid var(--navy-border); }
+  .stat-block:last-child, .stat-block:nth-last-child(2):nth-child(odd) { border-bottom: none; }
   .cta-band-inner { flex-direction: column; align-items: flex-start; }
 }
 @media (max-width: 480px) {
