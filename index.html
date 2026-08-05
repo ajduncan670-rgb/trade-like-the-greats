@@ -130,33 +130,68 @@ h1 {
   display: block;
 }
 
-/* ── ARCHETYPE FILTER STRIP ── */
-.archetype-strip {
-  padding: 36px 0;
+/* ── TRUST BAR ── */
+.trust-bar {
+  padding: 20px 0;
   background: var(--navy-mid);
   border-bottom: 1px solid var(--navy-border);
 }
-.archetype-strip .container { display: flex; flex-direction: column; gap: 14px; }
-.strip-label {
+.trust-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.trust-item {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--slate);
+  padding: 0 20px;
+  border-right: 1px solid var(--navy-border);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.trust-item:last-child { border-right: none; }
+.trust-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--emerald);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* ── FILTER ROW ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 20px;
+  flex-wrap: wrap;
+}
+.filter-label {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.12em;
   color: var(--slate);
   text-transform: uppercase;
+  flex-shrink: 0;
 }
-.archetype-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .archetype-chip {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.06em;
-  padding: 7px 16px;
+  padding: 6px 14px;
   border-radius: 99px;
   border: 1px solid var(--navy-border);
   color: var(--slate);
   background: none;
   cursor: pointer;
   transition: all 0.18s;
-  text-decoration: none;
 }
 .archetype-chip:hover { border-color: var(--emerald-dim); color: var(--emerald); background: var(--emerald-bg); }
 .archetype-chip.active { border-color: var(--emerald-dim); color: var(--emerald); background: var(--emerald-bg); }
@@ -297,11 +332,18 @@ h1 {
   </div>
 </section>
 
-<!-- ── ARCHETYPE FILTER STRIP ── -->
-<div class="archetype-strip" aria-label="Filter traders by archetype">
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
   <div class="container">
-    <p class="strip-label">Filter by archetype</p>
-    <div class="archetype-row" id="archetype-chips" role="group" aria-label="Trading archetype filters"></div>
+    <div class="trust-row">
+      <span class="trust-item"><span class="trust-dot"></span>Social Arbitrage</span>
+      <span class="trust-item"><span class="trust-dot"></span>Momentum Breakout</span>
+      <span class="trust-item"><span class="trust-dot"></span>Value / Fundamental</span>
+      <span class="trust-item"><span class="trust-dot"></span>Macro Trend</span>
+      <span class="trust-item"><span class="trust-dot"></span>Quantitative</span>
+      <span class="trust-item"><span class="trust-dot"></span>Contrarian</span>
+      <span class="trust-item"><span class="trust-dot"></span>Day Trading</span>
+    </div>
   </div>
 </div>
 
@@ -366,9 +408,13 @@ h1 {
   <div class="container">
     <p class="label">The roster</p>
     <h2 id="traders-heading">25 legends. One engine.</h2>
-    <p class="text-muted" style="max-width:480px;margin-bottom:0;">Every major trading archetype, methodology encoded and queryable.</p>
+    <p class="text-muted" style="max-width:480px;">Every major trading archetype, methodology encoded and queryable.</p>
+    <div class="filter-row" role="group" aria-label="Filter by archetype">
+      <span class="filter-label">Filter:</span>
+      <div id="archetype-chips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
     <div class="traders-grid" id="traders-preview"></div>
-    <div style="margin-top:24px;text-align:center;">
+    <div style="margin-top:28px;text-align:center;">
       <a href="traders.html" class="btn btn-outline">View all 25 traders</a>
     </div>
   </div>
