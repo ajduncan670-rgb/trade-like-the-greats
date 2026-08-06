@@ -36,6 +36,7 @@ function injectNav() {
           <li><a href="pricing.html" ${navActive('pricing.html')}>Pricing</a></li>
           <li><a href="blog.html" ${navActive('blog.html')}>Insights</a></li>
           <li><a href="about.html" ${navActive('about.html')}>About</a></li>
+          <li><a href="login.html" style="font-size:13px;color:var(--slate);text-decoration:none;letter-spacing:.01em;transition:color .2s;" onmouseover="this.style.color='var(--off-white)'" onmouseout="this.style.color='var(--slate)'">Sign in</a></li>
           <li><a href="pricing.html" class="nav-cta">Get access</a></li>
         </ul>
         <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false" onclick="toggleMenu(this)">
@@ -49,6 +50,7 @@ function injectNav() {
           <a href="pricing.html">Pricing</a>
           <a href="blog.html">Insights</a>
           <a href="about.html">About</a>
+          <a href="login.html">Sign in</a>
           <a href="pricing.html" style="color:var(--emerald);font-weight:600;">Get access</a>
         </ul>
       </div>
