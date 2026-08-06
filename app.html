@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trader Atlas — App</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ═══════════════════════════════════════════
+   TRADER ATLAS APP — Design System
+   ═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0D1B2A;--navy-mid:#152336;--navy-light:#1D2F45;--navy-hover:#22384F;
+  --border:#243A52;--border-light:#2D4A65;
+  --slate:#8A9BB0;--slate-light:#B8C8D9;--off-white:#EEF2F7;--white:#F8FAFB;
+  --emerald:#00C896;--emerald-dim:#007A5C;--emerald-bg:rgba(0,200,150,0.08);
+  --gold:#D4A017;--gold-bg:rgba(212,160,23,0.1);
+  --danger:#E55C5C;--danger-bg:rgba(229,92,92,0.1);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --sidebar:220px;--header:56px;--radius:6px;--radius-lg:10px;
+}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webkit-font-smoothing:antialiased;display:flex;}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar);height:100vh;background:var(--navy-mid);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:100;}
+.sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid var(--border);text-decoration:none;display:block;}
+.sidebar-logo-text{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--white);line-height:1;}
+.sidebar-logo-text span{color:var(--emerald);}
+.sidebar-logo-sub{font-family:var(--mono);font-size:9px;color:var(--slate);letter-spacing:0.08em;text-transform:uppercase;margin-top:3px;}
+.sidebar-section{padding:14px 0 6px;}
+.sidebar-section-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--slate);text-transform:uppercase;padding:0 16px;margin-bottom:4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:var(--slate);font-size:13px;cursor:pointer;border:none;background:none;width:100%;text-align:left;position:relative;transition:all 0.15s;}
+.nav-item:hover{background:var(--navy-hover);color:var(--off-white);}
+.nav-item.active{color:var(--white);background:var(--navy-hover);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--emerald);border-radius:0 2px 2px 0;}
+.nav-icon{width:15px;height:15px;opacity:0.7;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.5;}
+.nav-item.active .nav-icon,.nav-item:hover .nav-icon{opacity:1;}
+.nav-badge{font-family:var(--mono);font-size:8px;letter-spacing:0.06em;padding:2px 6px;border-radius:99px;margin-left:auto;flex-shrink:0;}
+.badge-elite{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(212,160,23,0.3);}
+.badge-pro{background:var(--emerald-bg);color:var(--emerald);border:1px solid var(--emerald-dim);}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--border);padding:12px;}
+.user-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;transition:background 0.15s;}
+.user-chip:hover{background:var(--navy-hover);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--emerald-bg);border:1px solid var(--emerald-dim);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--emerald);flex-shrink:0;font-weight:500;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:12px;font-weight:500;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-tier{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:0.06em;text-transform:uppercase;}
+
+/* MAIN */
+#main{flex:1;height:100vh;overflow:hidden;display:flex;flex-direction:column;min-width:0;}
+#topbar{height:var(--header);background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 20px;flex-shrink:0;}
+.topbar-title{font-family:var(--serif);font-size:16px;font-weight:500;color:var(--white);flex-shrink:0;}
+.topbar-ticker-wrap{flex:1;max-width:340px;position:relative;margin-left:12px;}
+.topbar-ticker-input{width:100%;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px 7px 32px;font-family:var(--mono);font-size:13px;color:var(--white);outline:none;text-transform:uppercase;transition:border-color 0.18s;}
+.topbar-ticker-input::placeholder{text-transform:none;color:var(--slate);font-size:12px;font-family:var(--sans);}
+.topbar-ticker-input:focus{border-color:var(--emerald-dim);}
+.topbar-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;opacity:0.4;stroke:var(--off-white);fill:none;}
+.topbar-hint{font-family:var(--mono);font-size:10px;color:var(--slate);flex-shrink:0;}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.topbar-btn{padding:6px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s;font-family:var(--sans);}
+.topbar-btn-ghost{background:none;color:var(--slate);border:1px solid var(--border);}
+.topbar-btn-ghost:hover{color:var(--off-white);border-color:var(--border-light);}
+#content{flex:1;overflow-y:auto;padding:24px;}
+
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+
+/* SHARED COMPONENTS */
+.page-header{margin-bottom:24px;}
+.page-header h1{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.page-header p{font-size:13px;color:var(--slate);line-height:1.5;}
+.card{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.card-title{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);}
+.card-body{padding:18px;}
+.tag{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;}
+.tag-elite{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(212,160,23,0.3);}
+.tag-pro{background:var(--emerald-bg);color:var(--emerald);border:1px solid var(--emerald-dim);}
+.tag-strong{background:rgba(0,200,150,0.1);color:var(--emerald);border:1px solid var(--emerald-dim);}
+.tag-watch{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(212,160,23,0.3);}
+.tag-review{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(229,92,92,0.3);}
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius);border:none;cursor:pointer;transition:all 0.15s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.btn-primary{background:var(--emerald);color:var(--navy);}
+.btn-primary:hover{opacity:0.88;}
+.btn-outline{background:none;color:var(--slate-light);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--border-light);color:var(--white);}
+.btn-ghost{background:none;color:var(--slate);border:none;}
+.btn-ghost:hover{color:var(--off-white);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.empty-state{text-align:center;padding:48px 24px;}
+.empty-icon{font-size:36px;margin-bottom:14px;opacity:0.4;}
+.empty-state h3{font-family:var(--serif);font-size:18px;color:var(--white);margin-bottom:8px;}
+.empty-state p{font-size:13px;color:var(--slate);max-width:280px;margin:0 auto 20px;line-height:1.6;}
+.loading-pulse{animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* DASHBOARD */
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;}
+.stat-card-label{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:8px;}
+.stat-card-val{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--white);line-height:1;}
+.stat-card-sub{font-size:11px;color:var(--slate);margin-top:4px;}
+.dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+.recent-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.recent-item:last-child{border-bottom:none;}
+.recent-ticker{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--emerald);width:48px;flex-shrink:0;}
+.recent-meta{flex:1;min-width:0;}
+.recent-trader{font-size:11px;color:var(--slate);}
+.quick-trader-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.quick-trader-btn{background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;cursor:pointer;transition:all 0.15s;text-align:left;border-top:2px solid var(--border);}
+.quick-trader-btn:hover{border-top-color:var(--emerald);background:var(--navy-hover);}
+.qtb-arch{font-family:var(--mono);font-size:8px;color:var(--emerald-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.qtb-name{font-size:12px;font-weight:500;color:var(--white);line-height:1.2;}
+
+/* TRADERS GRID */
+.traders-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.filter-chip{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;padding:5px 12px;border-radius:99px;border:1px solid var(--border);color:var(--slate);background:none;cursor:pointer;transition:all 0.15s;}
+.filter-chip:hover{border-color:var(--border-light);color:var(--off-white);}
+.filter-chip.active{border-color:var(--emerald-dim);color:var(--emerald);background:var(--emerald-bg);}
+.traders-grid-app{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.trader-card-app{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:all 0.15s;border-top:2px solid var(--border);display:flex;flex-direction:column;gap:6px;}
+.trader-card-app:hover{border-top-color:var(--emerald);background:var(--navy-hover);transform:translateY(-1px);}
+.trader-card-app.selected{border-top-color:var(--emerald);border-color:var(--emerald-dim);background:rgba(0,200,150,0.04);}
+.tca-arch{font-family:var(--mono);font-size:8px;color:var(--emerald-dim);text-transform:uppercase;letter-spacing:0.1em;}
+.tca-name{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--white);line-height:1.2;}
+.tca-doc{font-size:11px;color:var(--slate);line-height:1.45;}
+
+/* ENGINE */
+.engine-layout{display:grid;grid-template-columns:280px 1fr;gap:16px;height:calc(100vh - var(--header) - 48px);}
+.engine-sidebar{display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.selected-trader-card{background:var(--navy-mid);border:1px solid var(--emerald-dim);border-radius:var(--radius-lg);padding:14px;}
+.stc-arch{font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.stc-name{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;line-height:1.1;}
+.stc-doc{font-size:12px;color:var(--slate-light);line-height:1.5;margin-bottom:10px;}
+.stc-rules{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.stc-rules li{font-size:11px;color:var(--slate);display:flex;align-items:flex-start;gap:7px;line-height:1.4;}
+.stc-rules li::before{content:'→';color:var(--emerald);flex-shrink:0;font-family:var(--mono);font-size:10px;margin-top:1px;}
+.market-data-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;}
+.mdc-ticker{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--emerald);}
+.mdc-price{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--white);margin:4px 0;}
+.mdc-change{font-family:var(--mono);font-size:12px;}
+.mdc-change.up{color:var(--emerald);}
+.mdc-change.down{color:var(--danger);}
+.mdc-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.mdc-stat{background:var(--navy);border-radius:4px;padding:6px 8px;}
+.mdc-stat-label{font-family:var(--mono);font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:0.08em;}
+.mdc-stat-val{font-family:var(--mono);font-size:12px;color:var(--off-white);margin-top:2px;}
+.engine-main{display:flex;flex-direction:column;gap:12px;overflow:hidden;}
+.chat-window{flex:1;background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;min-height:0;}
+.chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;opacity:0.7;}
+.chat-empty-icon{font-size:32px;margin-bottom:12px;}
+.chat-empty h3{font-family:var(--serif);font-size:16px;color:var(--white);margin-bottom:6px;}
+.chat-empty p{font-size:12px;color:var(--slate);max-width:240px;line-height:1.5;}
+.suggested-qs{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;justify-content:center;}
+.suggested-q{font-size:11px;color:var(--emerald);border:1px solid var(--emerald-dim);border-radius:99px;padding:4px 12px;cursor:pointer;background:var(--emerald-bg);transition:all 0.15s;}
+.suggested-q:hover{background:rgba(0,200,150,0.15);}
+.msg{display:flex;flex-direction:column;gap:4px;}
+.msg-user{align-items:flex-end;}
+.msg-bubble{max-width:85%;padding:10px 14px;border-radius:var(--radius-lg);font-size:13px;line-height:1.65;}
+.msg-user .msg-bubble{background:var(--emerald);color:var(--navy);border-radius:var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);font-weight:500;}
+.msg-ai .msg-bubble{background:var(--navy);border:1px solid var(--border);color:var(--off-white);border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;}
+.msg-ai .msg-bubble strong{color:var(--emerald);}
+.msg-meta{font-family:var(--mono);font-size:9px;color:var(--slate);padding:0 4px;display:flex;align-items:center;gap:6px;}
+.msg-trader-tag{background:var(--navy-light);border:1px solid var(--border);border-radius:99px;padding:1px 8px;font-size:9px;color:var(--slate);}
+.typing-indicator{display:flex;gap:4px;align-items:center;padding:12px 14px;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius-lg);width:fit-content;}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--slate);animation:typing 1.2s infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-4px);opacity:1}}
+.chat-input-area{display:flex;gap:8px;flex-shrink:0;}
+.chat-input{flex:1;background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px 14px;font-family:var(--sans);font-size:13px;color:var(--white);outline:none;resize:none;transition:border-color 0.18s;min-height:44px;max-height:120px;}
+.chat-input::placeholder{color:var(--slate);}
+.chat-input:focus{border-color:var(--emerald-dim);}
+.chat-send-btn{background:var(--emerald);color:var(--navy);border:none;border-radius:var(--radius-lg);width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity 0.15s;}
+.chat-send-btn:hover{opacity:0.88;}
+.chat-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.chat-send-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.add-watchlist-btn{font-family:var(--mono);font-size:10px;color:var(--slate);border:1px solid var(--border);background:none;border-radius:99px;padding:3px 10px;cursor:pointer;transition:all 0.15s;}
+.add-watchlist-btn:hover{color:var(--emerald);border-color:var(--emerald-dim);}
+
+/* DAILY PICKS */
+.picks-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.picks-toolbar-left{display:flex;align-items:center;gap:10px;}
+.picks-date{font-family:var(--mono);font-size:11px;color:var(--slate);}
+.trader-tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.trader-tab{font-family:var(--mono);font-size:10px;letter-spacing:0.04em;padding:5px 12px;border-radius:99px;border:1px solid var(--border);color:var(--slate);background:none;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.trader-tab:hover{border-color:var(--border-light);color:var(--off-white);}
+.trader-tab.active{border-color:var(--emerald-dim);color:var(--emerald);background:var(--emerald-bg);}
+.trader-tab.scanned::after{content:'●';margin-left:5px;font-size:7px;color:var(--emerald);vertical-align:middle;}
+.trader-tab.scanning{opacity:0.6;cursor:wait;}
+.picks-scan-btn{display:flex;align-items:center;gap:6px;}
+.picks-scan-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.picks-status{font-family:var(--mono);font-size:10px;color:var(--emerald);display:flex;align-items:center;gap:6px;}
+.picks-spinner{width:10px;height:10px;border:1.5px solid var(--emerald-bg);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.picks-list{display:flex;flex-direction:column;gap:10px;}
+.pick-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color 0.15s;}
+.pick-card:hover{border-color:var(--border-light);}
+.pick-card-main{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:14px;padding:14px 18px;}
+.pick-card-ticker{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--emerald);}
+.pick-card-info{display:flex;flex-direction:column;gap:4px;}
+.pick-card-by{font-family:var(--mono);font-size:10px;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;}
+.pick-card-thesis{font-size:13px;color:var(--off-white);line-height:1.5;}
+.pick-card-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.pick-card-expand{background:none;border:none;color:var(--slate);cursor:pointer;font-size:20px;line-height:1;transition:color 0.15s;font-family:var(--mono);width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+.pick-card-expand:hover{color:var(--off-white);}
+.pick-card-detail{display:none;padding:0 18px 14px;border-top:1px solid var(--border);}
+.pick-card-detail.open{display:block;padding-top:14px;}
+.pick-detail-text{font-size:13px;color:var(--slate-light);line-height:1.75;margin-bottom:12px;}
+.pick-detail-text strong{color:var(--emerald);}
+.pick-chat-area{border-top:1px solid var(--border);padding:14px 18px 0;}
+.pick-chat-msgs{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;max-height:200px;overflow-y:auto;}
+.pick-chat-msg-user{align-self:flex-end;background:var(--emerald);color:var(--navy);padding:8px 12px;border-radius:10px 10px 3px 10px;font-size:12px;max-width:85%;font-weight:500;}
+.pick-chat-msg-ai{align-self:flex-start;background:var(--navy);border:1px solid var(--border);color:var(--off-white);padding:8px 12px;border-radius:10px 10px 10px 3px;font-size:12px;max-width:90%;line-height:1.6;}
+.pick-chat-msg-ai strong{color:var(--emerald);}
+.pick-chat-input-row{display:flex;gap:8px;padding-bottom:14px;}
+.pick-chat-input{flex:1;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:var(--sans);font-size:12px;color:var(--white);outline:none;}
+.pick-chat-input:focus{border-color:var(--emerald-dim);}
+.pick-chat-send{background:var(--emerald);color:var(--navy);border:none;border-radius:var(--radius);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.pick-chat-send:disabled{opacity:0.4;cursor:not-allowed;}
+.pick-chat-send svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.picks-empty{text-align:center;padding:48px 24px;}
+.picks-empty-icon{font-size:36px;margin-bottom:14px;opacity:0.3;}
+.picks-empty h3{font-family:var(--serif);font-size:18px;color:var(--white);margin-bottom:8px;}
+.picks-empty p{font-size:13px;color:var(--slate);max-width:300px;margin:0 auto 20px;line-height:1.6;}
+.picks-skeleton{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;display:flex;align-items:center;gap:14px;}
+.skel-ticker{width:52px;height:24px;background:var(--navy-light);border-radius:4px;animation:skelPulse 1.4s ease-in-out infinite;}
+.skel-body{flex:1;display:flex;flex-direction:column;gap:8px;}
+.skel-line{height:12px;background:var(--navy-light);border-radius:4px;animation:skelPulse 1.4s ease-in-out infinite;}
+.skel-line-short{width:40%;}
+@keyframes skelPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+
+/* WATCHLIST */
+.wl-header{display:grid;grid-template-columns:64px 1fr 160px 120px 80px;gap:12px;padding:8px 14px;border-bottom:1px solid var(--border);}
+.wl-header span{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);}
+.wl-row{display:grid;grid-template-columns:64px 1fr 160px 120px 80px;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.15s;}
+.wl-row:last-child{border-bottom:none;}
+.wl-row:hover{background:var(--navy-hover);}
+.wl-ticker{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--emerald);}
+.wl-trader{font-size:12px;color:var(--slate-light);}
+.wl-arch{font-family:var(--mono);font-size:10px;color:var(--slate);}
+.wl-notes{font-size:11px;color:var(--slate);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wl-actions{display:flex;gap:6px;justify-content:flex-end;}
+.wl-action-btn{background:none;border:none;color:var(--slate);cursor:pointer;width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.wl-action-btn:hover{background:var(--navy-light);color:var(--off-white);}
+.wl-action-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* COMPARE */
+.compare-setup{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+.compare-setup .form-group{display:flex;flex-direction:column;gap:6px;}
+.compare-setup label{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);}
+.compare-select{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--off-white);outline:none;cursor:pointer;min-width:180px;}
+.compare-select:focus{border-color:var(--emerald-dim);}
+.compare-ticker-inp{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:var(--mono);font-size:13px;color:var(--white);outline:none;text-transform:uppercase;width:110px;}
+.compare-ticker-inp:focus{border-color:var(--emerald-dim);}
+.compare-results{display:grid;gap:14px;}
+.compare-col{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.compare-col-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.compare-col-name{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--white);}
+.compare-col-arch{font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.08em;}
+.compare-col-body{padding:16px;font-size:13px;color:var(--slate-light);line-height:1.75;}
+.compare-col-body strong{color:var(--emerald);}
+.compare-col-loading{padding:32px;text-align:center;color:var(--slate);font-size:13px;}
+
+/* SETTINGS */
+.settings-sections{display:flex;flex-direction:column;gap:20px;max-width:600px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-label{font-size:13px;font-weight:500;color:var(--white);}
+.settings-row-sub{font-size:11px;color:var(--slate);margin-top:2px;}
+.settings-input{background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;font-family:var(--sans);font-size:13px;color:var(--white);outline:none;min-width:200px;}
+.settings-input:focus{border-color:var(--emerald-dim);}
+
+/* ONBOARDING */
+#onboarding-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.88);z-index:1000;display:none;align-items:center;justify-content:center;}
+#onboarding-overlay.show{display:flex;}
+.onboarding-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;max-width:440px;width:90%;text-align:center;}
+.ob-step{font-family:var(--mono);font-size:10px;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+.onboarding-card h2{font-family:var(--serif);font-size:24px;color:var(--white);margin-bottom:12px;}
+.onboarding-card p{font-size:14px;color:var(--slate-light);line-height:1.7;margin-bottom:24px;}
+.ob-dots{display:flex;justify-content:center;gap:6px;margin-bottom:20px;}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background 0.2s;}
+.ob-dot.active{background:var(--emerald);}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast-item{background:var(--navy-light);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;font-size:13px;color:var(--off-white);display:flex;align-items:center;gap:10px;pointer-events:all;animation:slideIn 0.2s ease;max-width:300px;}
+.toast-item.success{border-left:3px solid var(--emerald);}
+.toast-item.error{border-left:3px solid var(--danger);}
+.toast-item.info{border-left:3px solid var(--slate);}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* MODAL */
+#modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.8);z-index:500;display:none;align-items:center;justify-content:center;}
+#modal-overlay.show{display:flex;}
+.modal{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;min-width:360px;max-width:480px;width:90%;}
+.modal h3{font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:8px;}
+.modal p{font-size:13px;color:var(--slate-light);margin-bottom:20px;line-height:1.6;}
+.modal-form{display:flex;flex-direction:column;gap:14px;}
+.modal-label{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;display:block;}
+.modal-input,.modal-textarea{width:100%;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--white);outline:none;}
+.modal-input:focus,.modal-textarea:focus{border-color:var(--emerald-dim);}
+.modal-textarea{min-height:80px;resize:vertical;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.traders-grid-app{grid-template-columns:repeat(3,1fr);}.dash-stats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){#sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);z-index:200;}.engine-layout{grid-template-columns:1fr;}.engine-sidebar{display:none;}.traders-grid-app{grid-template-columns:repeat(2,1fr);}.dash-grid{grid-template-columns:1fr;}.compare-results{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <a href="#" class="sidebar-logo">
+    <div class="sidebar-logo-text">Trader <span>Atlas</span></div>
+    <div class="sidebar-logo-sub">Methodology Engine</div>
+  </a>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Navigation</div>
+    <button class="nav-item active" data-view="dashboard" onclick="navigate('dashboard',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </button>
+    <button class="nav-item" data-view="greats" onclick="navigate('greats',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>The 25 Greats
+    </button>
+    <button class="nav-item" data-view="engine" onclick="navigate('engine',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>AI Engine
+    </button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Features</div>
+    <button class="nav-item" data-view="picks" onclick="navigate('picks',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Daily Picks<span class="nav-badge badge-elite">ELITE</span>
+    </button>
+    <button class="nav-item" data-view="watchlist" onclick="navigate('watchlist',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist<span class="nav-badge badge-pro">PRO</span>
+    </button>
+    <button class="nav-item" data-view="compare" onclick="navigate('compare',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Compare<span class="nav-badge badge-elite">ELITE</span>
+    </button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Account</div>
+    <button class="nav-item" data-view="settings" onclick="navigate('settings',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-chip" onclick="navigate('settings',document.querySelector('[data-view=settings]'))">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Loading...</div>
+        <div class="user-tier" id="user-tier">ELITE</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <header id="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-ticker-wrap">
+      <svg class="topbar-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="topbar-ticker-input" id="global-ticker" placeholder="Enter ticker (e.g. SOFI) and press Enter" maxlength="10">
+    </div>
+    <span class="topbar-hint" id="kbd-hint">/ to focus</span>
+    <div class="topbar-actions">
+      <button class="topbar-btn topbar-btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-header">
+        <h1 id="dash-greeting">Good morning.</h1>
+        <p>Here is what the methodology engines are watching today.</p>
+      </div>
+      <div class="dash-stats">
+        <div class="stat-card"><div class="stat-card-label">Traders available</div><div class="stat-card-val">25</div><div class="stat-card-sub">All archetypes unlocked</div></div>
+        <div class="stat-card"><div class="stat-card-label">Analyses run</div><div class="stat-card-val" id="stat-queries">0</div><div class="stat-card-sub">This session</div></div>
+        <div class="stat-card"><div class="stat-card-label">Watchlist</div><div class="stat-card-val" id="stat-watchlist">0</div><div class="stat-card-sub">Tickers tracked</div></div>
+        <div class="stat-card"><div class="stat-card-label">Daily picks</div><div class="stat-card-val">5</div><div class="stat-card-sub">Live today</div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Quick start</span><button class="btn btn-ghost btn-sm" onclick="navigate('greats',document.querySelector('[data-view=greats]'))">View all 25</button></div>
+          <div class="card-body"><div class="quick-trader-grid" id="quick-trader-grid"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Today's top picks</span><span class="tag tag-elite">ELITE</span></div>
+          <div class="card-body" id="dash-picks-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE GREATS -->
+    <div class="view" id="view-greats">
+      <div class="page-header"><h1>The 25 Greats</h1><p>Select a trader to open the AI engine with their methodology loaded.</p></div>
+      <div class="traders-filter-row" id="traders-filter-row"></div>
+      <div class="traders-grid-app" id="traders-grid-app"></div>
+    </div>
+
+    <!-- AI ENGINE -->
+    <div class="view" id="view-engine">
+      <div class="engine-layout">
+        <div class="engine-sidebar">
+          <div class="selected-trader-card" id="selected-trader-card">
+            <div class="chat-empty" style="padding:20px;">
+              <div class="chat-empty-icon">⚡</div>
+              <h3 style="font-size:14px;margin-bottom:6px;">No trader selected</h3>
+              <p style="font-size:12px;">Go to The 25 Greats and pick a trader.</p>
+              <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="navigate('greats',document.querySelector('[data-view=greats]'))">Pick a trader</button>
+            </div>
+          </div>
+          <div class="market-data-card" id="market-data-card" style="display:none;">
+            <div class="mdc-ticker" id="mdc-ticker"></div>
+            <div class="mdc-price" id="mdc-price">--</div>
+            <div class="mdc-change" id="mdc-change"></div>
+            <div class="mdc-stats">
+              <div class="mdc-stat"><div class="mdc-stat-label">Volume</div><div class="mdc-stat-val" id="mdc-vol">--</div></div>
+              <div class="mdc-stat"><div class="mdc-stat-label">52W High</div><div class="mdc-stat-val" id="mdc-high">--</div></div>
+              <div class="mdc-stat"><div class="mdc-stat-label">52W Low</div><div class="mdc-stat-val" id="mdc-low">--</div></div>
+              <div class="mdc-stat"><div class="mdc-stat-label">Mkt Cap</div><div class="mdc-stat-val" id="mdc-cap">--</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="engine-main">
+          <div class="chat-window" id="chat-window">
+            <div class="chat-empty" id="chat-empty-state">
+              <div class="chat-empty-icon">⚡</div>
+              <h3>Ready to analyze</h3>
+              <p>Select a trader from The 25 Greats, then type a question or enter a ticker above.</p>
+              <div class="suggested-qs" id="suggested-qs"></div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <textarea class="chat-input" id="chat-input" placeholder="Select a trader first..." rows="1" disabled></textarea>
+            <button class="chat-send-btn" id="chat-send-btn" disabled>
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY PICKS -->
+    <div class="view" id="view-picks">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1>Daily Picks</h1>
+          <p>Each trader scans their methodology-appropriate universe and surfaces their top plays. Educational analysis only.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span class="picks-date" id="picks-date-label"></span>
+          <span class="tag tag-elite">ELITE</span>
+        </div>
+      </div>
+      <!-- Trader tab row — all 25 traders -->
+      <div class="trader-tab-row" id="picks-trader-tabs"></div>
+      <!-- Status bar -->
+      <div id="picks-status-bar" style="display:none;margin-bottom:16px;">
+        <div class="picks-status">
+          <div class="picks-spinner"></div>
+          <span id="picks-status-text"></span>
+        </div>
+      </div>
+      <!-- Picks content: skeleton → results -->
+      <div id="picks-list"></div>
+    </div>
+
+    <!-- WATCHLIST -->
+    <div class="view" id="view-watchlist">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div><h1>Watchlist</h1><p>Tickers you are tracking through specific trader lenses.</p></div>
+        <button class="btn btn-primary" onclick="openAddWatchlistModal()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add ticker
+        </button>
+      </div>
+      <div class="card">
+        <div class="wl-header"><span>Ticker</span><span>Trader</span><span>Archetype</span><span>Notes</span><span></span></div>
+        <div id="watchlist-rows"></div>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div class="view" id="view-compare">
+      <div class="page-header"><h1>Compare Traders</h1><p>Run the same ticker through multiple methodologies side by side.</p></div>
+      <div class="compare-setup">
+        <div class="form-group"><label>Ticker</label><input type="text" class="compare-ticker-inp" id="compare-ticker" placeholder="e.g. NVDA" maxlength="10"></div>
+        <div class="form-group"><label>Trader 1</label><select class="compare-select" id="compare-t1"></select></div>
+        <div class="form-group"><label>Trader 2</label><select class="compare-select" id="compare-t2"></select></div>
+        <div class="form-group"><label>Trader 3 (optional)</label><select class="compare-select" id="compare-t3"><option value="">None</option></select></div>
+        <button class="btn btn-primary" onclick="runCompare()">
+          <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Run comparison
+        </button>
+      </div>
+      <div class="compare-results" id="compare-results"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="page-header"><h1>Settings</h1><p>Manage your account and preferences.</p></div>
+      <div class="settings-sections">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Account</span></div>
+          <div class="card-body">
+            <div class="settings-row"><div><div class="settings-row-label">Email</div><div class="settings-row-sub" id="settings-email">--</div></div></div>
+            <div class="settings-row">
+              <div><div class="settings-row-label">Display name</div><div class="settings-row-sub">Shown throughout the app</div></div>
+              <div style="display:flex;gap:8px;align-items:center;"><input type="text" class="settings-input" id="settings-name" placeholder="Your name"><button class="btn btn-outline btn-sm" onclick="saveName()">Save</button></div>
+            </div>
+            <div class="settings-row"><div><div class="settings-row-label">Current plan</div><div class="settings-row-sub">Elite — all features unlocked</div></div><span class="tag tag-elite">ELITE</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Session</span></div>
+          <div class="card-body">
+            <div class="settings-row"><div><div class="settings-row-label">Sign out</div><div class="settings-row-sub">End your current session</div></div><button class="btn btn-outline btn-sm" onclick="signOut()">Sign out</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Legal</span></div>
+          <div class="card-body">
+            <div class="settings-row"><div><div class="settings-row-label">Disclaimer</div><div class="settings-row-sub">All content is for educational purposes only. Not investment advice. Trader Atlas is not affiliated with any traders referenced.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Add to watchlist</h3>
+    <p>Track this ticker through a specific trader's lens.</p>
+    <div class="modal-form">
+      <div><label class="modal-label">Ticker</label><input type="text" class="modal-input" id="modal-ticker" placeholder="e.g. SOFI" style="text-transform:uppercase;" maxlength="10"></div>
+      <div><label class="modal-label">Trader</label><select class="modal-input" id="modal-trader-select"></select></div>
+      <div><label class="modal-label">Notes (optional)</label><textarea class="modal-textarea" id="modal-notes" placeholder="Why are you watching this? What is the thesis?"></textarea></div>
+      <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveWatchlistItem()">Add to watchlist</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding-overlay">
+  <div class="onboarding-card">
+    <div class="ob-step" id="ob-step">Step 1 of 3</div>
+    <h2 id="ob-title">Welcome to Trader Atlas</h2>
+    <p id="ob-body">You have full Elite access. Let us take 30 seconds to show you how to get the most out of the platform.</p>
+    <div class="ob-dots"><div class="ob-dot active" id="ob-dot-0"></div><div class="ob-dot" id="ob-dot-1"></div><div class="ob-dot" id="ob-dot-2"></div></div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-outline" onclick="dismissOnboarding()">Skip</button>
+      <button class="btn btn-primary" id="ob-next-btn" onclick="nextOnboarding()">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// CONFIG
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const DEMO_MODE         = true;
+
+// TRADER DATA
+const TRADERS = [
+  {id:'camillo',name:'Chris Camillo',arch:'Social Arbitrage',doc:'Find information gaps between social discourse and institutional pricing.',rules:['Social signals must be 6-18 months ahead of Wall Street','Look for behavioral adoption not just sentiment','Catalyst required to close the gap','Position size to news event, not chart pattern'],persona:'You are Chris Camillo. You analyze stocks through the lens of social arbitrage — finding information asymmetries between what mainstream society already knows and what Wall Street has not yet priced in. You look for consumer behavioral shifts, viral trends, and cultural movements that precede institutional recognition. Always identify the specific social signal, estimate the time gap before institutional recognition, and assess whether a catalyst exists to close that gap. Educational analysis only.'},
+  {id:'minervini',name:'Mark Minervini',arch:'Momentum Breakout',doc:'Trade only the strongest stocks breaking out of tight bases on high volume.',rules:['Stock must be in Stage 2 uptrend','200-day MA trending up for at least 1 month','RS line making new highs before price breakout','Volume 40-50% above average on breakout day','Cut losses at 7-8% — no exceptions'],persona:'You are Mark Minervini. You analyze stocks through the SEPA methodology. You look for Stage 2 base breakouts with improving relative strength, tight price patterns, and volume confirmation. You are ruthless about risk management. Your analysis always covers: trend template compliance, base quality, relative strength line, volume characteristics, and specific entry/stop levels. Educational analysis only.'},
+  {id:'livermore',name:'Jesse Livermore',arch:'Trend Following',doc:'The market is never wrong — follow the path of least resistance.',rules:['Never fight the tape','Cut losses quickly, let profits run','Trade only leading stocks in leading groups','Patience is the key — wait for the right moment'],persona:'You are Jesse Livermore, the legendary speculator. You focus on price action and the psychology of market movements. You believe patience is paramount. Your analysis always returns to: what is the line of least resistance for this stock right now? Educational analysis only.'},
+  {id:'buffett',name:'Warren Buffett',arch:'Value / Fundamental',doc:'Buy wonderful companies at fair prices and hold them forever.',rules:['Business must be within your circle of competence','Durable competitive advantage (moat) required','Management must be honest and capable','Price must offer a margin of safety'],persona:'You are Warren Buffett. You analyze businesses, not stocks. You focus on competitive moat durability, management quality, long-term economics, and margin of safety. You always ask: would I be comfortable owning this business for 10 years if the market closed tomorrow? Educational analysis only.'},
+  {id:'lynch',name:'Peter Lynch',arch:'Growth at Value',doc:'Invest in what you know. The best ideas hide in plain sight.',rules:['PEG ratio below 1 is attractive','Understand the business before you buy','GARP — growth at a reasonable price','Know your story — why will this stock go up?'],persona:'You are Peter Lynch. You look for investments in everyday life — businesses you understand. You use the PEG ratio as your primary valuation tool. Your analysis focuses on: what is the growth story, is it believable, and is the price reasonable? Educational analysis only.'},
+  {id:'soros',name:'George Soros',arch:'Macro / Reflexivity',doc:'Markets are driven by perception. Find where perception and reality diverge.',rules:['Markets are always biased','Find the prevailing bias and assess its sustainability','When wrong, recognize it fast and cut','Bet big when you have conviction in the thesis'],persona:'You are George Soros. You see markets through the lens of reflexivity — how participants perceptions shape the fundamentals they are trying to predict. Your analysis always asks: what is the dominant narrative, is it self-reinforcing or self-defeating, and where does reality diverge from perception? Educational analysis only.'},
+  {id:'simons',name:'Jim Simons',arch:'Quantitative',doc:'Patterns in data reveal patterns in markets. Emotion has no place.',rules:['Follow the model, not your gut','Edge must be statistically significant','Diversify across uncorrelated signals','Past patterns are the best guide we have'],persona:'You are Jim Simons. You analyze markets through quantitative pattern recognition with no emotional attachment. Your analysis focuses on: observable quantitative signals in price and volume data, historical pattern strength, and whether the signal appears statistically significant. Educational analysis only.'},
+  {id:'tudor',name:'Paul Tudor Jones',arch:'Macro Trend',doc:'Losers average losers. Risk management is the only real edge.',rules:['Play great defense before thinking about offense','Never risk more than 1% of capital on a single trade','5:1 reward-to-risk ratio required before entry','Cut losses the moment thesis is violated'],persona:'You are Paul Tudor Jones. Your entire philosophy centers on risk management first, opportunity second. Before discussing any upside, you always assess the downside. Your analysis always answers: where is the stop, what is the risk-to-reward, and does the macro environment support this trade? Educational analysis only.'},
+  {id:'druckenmiller',name:'Stan Druckenmiller',arch:'Macro / Momentum',doc:'Concentrate in your best ideas. Diversification is for those who do not know.',rules:['When you have conviction, size up significantly','Macro thesis must be correct first','Find the best vehicle to express the thesis','Be flexible — change your mind when facts change'],persona:'You are Stan Druckenmiller. You combine top-down macro analysis with bottom-up stock selection. When you have conviction, you concentrate heavily. Your analysis covers: the macro backdrop, why this stock is the best expression of that thesis, and at what point you would reverse. Educational analysis only.'},
+  {id:'cameron',name:'Ross Cameron',arch:'Day Trading',doc:'Find the strongest momentum stock. Define risk. Execute cleanly.',rules:['Only trade top momentum stocks each morning','Float matters — lower float means bigger moves','Wait for first pullback confirmation after gap-up','Risk must be defined before entry — hard stop'],persona:'You are Ross Cameron. You focus on intraday momentum — finding the strongest gap-up stocks premarket and trading the first confirmed pullback. You are extremely disciplined about risk. Your analysis is fast and tactical: is this a tradeable momentum setup today, where is the entry, where is the stop, and what is the target? Educational analysis only.'},
+  {id:'graham',name:'Benjamin Graham',arch:'Deep Value',doc:'Margin of safety is the bedrock. Never pay too much.',rules:['Price must be below intrinsic value by at least 33%','Strong balance sheet — debt-to-equity below 1','Consistent earnings history over 10 years','Diversify — no single stock more than 10% of portfolio'],persona:'You are Benjamin Graham. You are intensely focused on the margin of safety — buying assets for less than they are worth. You analyze balance sheets, earnings history, and asset values with deep skepticism of growth projections. Your analysis always quantifies: what is the intrinsic value, what is the current price, and is the margin of safety sufficient? Educational analysis only.'},
+  {id:'oneil',name:"William O'Neil",arch:'Momentum Breakout',doc:'Buy the fastest-growing companies at the exact right moment.',rules:['C: Current earnings up 25%+ quarter-over-quarter','A: Annual earnings growth 25%+ for 3 years','N: New product, service, or management','S: Supply/demand — institutional buying on volume','L: Leader — RS rank in top 20%','M: Market in confirmed uptrend — required'],persona:"You are William O'Neil. You use CAN SLIM to find the fastest-growing companies at their optimal buy point. You combine fundamental growth requirements with technical timing. You only buy in a confirmed market uptrend. Your analysis walks through each CAN SLIM criterion systematically. Educational analysis only."},
+  {id:'darvas',name:'Nicolas Darvas',arch:'Momentum Breakout',doc:'Follow price action inside defined boxes. Ignore the noise.',rules:['Stock must be making new highs','Define the box: upper and lower consolidation boundaries','Buy the breakout above the upper boundary','Stop just below the box floor'],persona:'You are Nicolas Darvas. You identify consolidation boxes and buy decisive breakouts above them. You have no interest in fundamentals or news — only price action. Your analysis identifies: is a box forming, where are the boundaries, and is the breakout real or a false move? Educational analysis only.'},
+  {id:'tepper',name:'David Tepper',arch:'Distressed Value',doc:'Be greedy when others are fearful. Opportunity hides in crisis.',rules:['Look for maximum pessimism — that is where opportunity lives','Asymmetric risk-to-reward in distressed situations','Macro backdrop must allow for recovery','Catalyst needed to unlock value'],persona:'You are David Tepper. You made your fortune buying distressed assets at the point of maximum fear. You are contrarian and look for situations where the market has priced in catastrophe but recovery is more likely. Your analysis asks: what is the market pricing in, is it too pessimistic, and what is the recovery path? Educational analysis only.'},
+  {id:'icahn',name:'Carl Icahn',arch:'Activist / Contrarian',doc:'Find undervalued companies with lazy management and unlock value.',rules:['Look for companies trading below intrinsic value due to poor management','Asset value must exceed market cap','Catalyst: activist campaign or board change','Be patient — campaigns take time'],persona:'You are Carl Icahn. You find undervalued companies where management is destroying shareholder value and look for the path to unlock that value. Your analysis asks: is this company worth more than it trades for, why is it undervalued, and what catalyst could close the gap? Educational analysis only.'},
+  {id:'seykota',name:'Ed Seykota',arch:'Trend Following',doc:'The market pays you to be patient and punishes you for being clever.',rules:['Ride the trend until it ends','Cut losses short, let profits run far','Risk a small percentage of capital per trade','Systems beat intuition over time'],persona:'You are Ed Seykota. You are a systematic trend follower. You believe in following the trend with mechanical discipline. You have no opinion on what a stock should do — only on what it is doing. Your analysis focuses on: what is the trend, is it intact, and what does a systematic approach say about risk? Educational analysis only.'},
+  {id:'burry',name:'Michael Burry',arch:'Deep Contrarian',doc:'Read the prospectus. Do the work everyone else is too lazy to do.',rules:['Read every document — the truth is in the footnotes','Look for situations where the consensus is deeply wrong','Free cash flow is the real measure of a business','Illiquid and overlooked situations offer the best value'],persona:'You are Michael Burry. You are famous for doing the deep research everyone avoids — reading full prospectuses and footnotes to find situations where the consensus is wrong. Your analysis asks: what does the actual document say, where is the market wrong, and what is the free cash flow reality? Educational analysis only.'},
+  {id:'marks',name:'Howard Marks',arch:'Contrarian / Value',doc:'You cannot predict, but you can prepare. Second-level thinking is everything.',rules:['Second-level thinking is the edge','Where is the market in the cycle?','Be aggressive when risk is well-compensated','Risk is permanent loss of capital, not volatility'],persona:'You are Howard Marks. You are a master of market cycles and second-level thinking — asking not just is this a good company but is this priced well relative to what the market thinks. Your analysis covers: what is the first-level view, what is the second-level view the market is missing, and how does the cycle affect risk-reward? Educational analysis only.'},
+  {id:'dalio',name:'Ray Dalio',arch:'Macro / Systematic',doc:'Understand the machine. Economic cycles are predictable if you study history.',rules:['Understand the short and long-term debt cycles','Diversification across uncorrelated assets reduces risk','Pain plus reflection equals progress','Radical transparency leads to better decisions'],persona:'You are Ray Dalio. You view markets through the economic machine — the interaction of credit, debt, and productivity cycles. Your analysis covers: where are we in the debt cycle, how does this macro backdrop affect this investment, and how does it fit within a diversified portfolio framework? Educational analysis only.'},
+  {id:'wood',name:'Cathie Wood',arch:'Disruptive Innovation',doc:'Invest in the convergence of exponential technologies five years before the crowd.',rules:['5-year time horizon minimum','Look for convergence of multiple disruptive technologies','TAM must be massive and growing exponentially','Volatility is the price of long-term outperformance'],persona:'You are Cathie Wood. You focus on disruptive innovation at the convergence of technologies. You have a 5-year minimum horizon. Your analysis asks: is this company on the right side of a disruptive technology curve, how large is the addressable market in 5 years, and is the current price reasonable for that outcome? Educational analysis only.'},
+  {id:'basso',name:'Tom Basso',arch:'Trend Following',doc:'Trade systems, not emotions. The process is what you control.',rules:['Follow the system — remove emotion from decisions','Diversify across many markets and timeframes','Risk per trade must be defined before entry','Trust the system during drawdowns'],persona:'You are Tom Basso. You believe in removing emotion from trading entirely through systematic rules. Your analysis applies rules objectively: what does the trend system say, what is the correct position size given the risk parameters, and how does this fit within a diversified systematic portfolio? Educational analysis only.'},
+  {id:'raschke',name:'Linda Bradford Raschke',arch:'Short-term Momentum',doc:'The market is a series of patterns repeating. Learn to read them.',rules:['Price patterns repeat because human psychology repeats','Look for momentum with a catalyst','False breakouts offer the best short-term reversals','Entry price matters — be precise'],persona:'You are Linda Bradford Raschke. You have mastered short-term price pattern recognition. Your analysis identifies: what pattern is forming, is there a momentum catalyst, and where is the precise entry that offers the best risk-reward for a short-term trade? Educational analysis only.'},
+  {id:'zanger',name:'Dan Zanger',arch:'Momentum Breakout',doc:'Pattern recognition and chart mastery. The setup is everything.',rules:['Cup and handle, flat base, ascending triangle are primary patterns','Volume must confirm every breakout','Only trade in a confirmed uptrend','The handle must be shallow — deep handles mean weak demand'],persona:'You are Dan Zanger. You are one of the great technical traders, famous for identifying chart patterns with extraordinary precision. Your analysis is purely technical: identify the pattern, assess its quality, confirm the volume, and give a specific entry, target, and stop level. Educational analysis only.'},
+  {id:'schwartz',name:'Marty Schwartz',arch:'Day Trading',doc:'Play great defense, not great offense. Protect capital above all.',rules:['Defense wins — protect capital above everything','Use the 10-day EMA as your trend filter','Know your daily loss limit before you trade','When in doubt, stay out'],persona:'You are Marty Schwartz, Pit Bull. Your entire edge is risk management. You are ruthless about protecting capital and have a clearly defined daily loss limit. Your analysis always starts with defense: is the trend right, what is the risk, and is the potential reward worth the risk? Educational analysis only.'},
+  {id:'driehaus',name:'Richard Driehaus',arch:'Momentum / Growth',doc:'Buy high, sell higher. Momentum is a fundamental force in markets.',rules:['Buy stocks making new highs, not new lows','Earnings acceleration is the primary driver','Relative strength must be in the top decile','Price momentum precedes fundamental recognition'],persona:'You are Richard Driehaus. You pioneered momentum investing — buying stocks already moving strongly higher on the thesis that momentum is a fundamental force. Your analysis looks for: earnings acceleration, relative strength leadership, and whether the institutional recognition of growth is still early. Educational analysis only.'},
+];
+
+// ═══════════════════════════════════════════════════
+// LIVE PICKS ENGINE — replaces static PICKS_DATA
+// ═══════════════════════════════════════════════════
+
+// Each trader has a curated universe that actually fits their methodology.
+// These are NOT shared — a value investor and a day trader should never screen
+// the same stocks. The AI then picks the BEST opportunities from each universe.
+const TRADER_UNIVERSES = {
+  camillo:      ['SOFI','HOOD','COIN','ACHR','JOBY','RIVN','IONQ','RGTI','RBLX','SNAP','PINS','LYFT'],
+  minervini:    ['NVDA','PLTR','CRWD','AXON','CELH','SMAR','DXCM','ENPH','ANET','LRCX','ORCL','MELI'],
+  livermore:    ['SPY','QQQ','NVDA','AAPL','MSFT','TSLA','META','AMZN','GOOGL','NFLX','AMD','ARM'],
+  buffett:      ['AAPL','KO','BAC','AXP','CVX','OXY','KHC','MCO','VRSN','V','MA','WMT'],
+  lynch:        ['HOOD','SOFI','AFRM','UPST','ALLY','SQ','PYPL','INTU','ADBE','CRM','SHOP','ETSY'],
+  soros:        ['TLT','GLD','FXI','EEM','UUP','BITO','SPY','IWM','HYG','XLE','XLF','EWJ'],
+  simons:       ['PLTR','IONQ','RGTI','QBTS','ACHR','JOBY','AEHR','SMCI','MSTR','CLSK','RIOT','MARA'],
+  tudor:        ['ES=F','NQ=F','SPY','QQQ','TLT','GLD','USO','UNG','HYG','VIX','SQQQ','UVXY'],
+  druckenmiller:['NVDA','META','MSFT','GOOGL','AMZN','TSM','ASML','ORCL','ARM','ANET','AVGO','MELI'],
+  cameron:      ['AAOI','HIMS','SOUN','KULR','PRCT','QUBT','RGTI','QBTS','ACHR','MARA','RIOT','CLSK'],
+  graham:       ['BRK-B','JNJ','PG','MMM','VZ','T','IBM','WBA','CVS','AFL','MO','KHC'],
+  oneil:        ['NVDA','PLTR','CRWD','AXON','CELH','HIMS','ASTS','IONQ','ARM','TMDX','RDDT','MELI'],
+  darvas:       ['NVDA','PLTR','CRWD','MELI','FICO','DECK','PODD','ONTO','DUOL','TTD','AXON','HIMS'],
+  tepper:       ['META','AAPL','MSFT','GOOGL','AMZN','NVDA','BABA','JD','WFC','BAC','C','GS'],
+  icahn:        ['BIIB','PFE','WBD','PARA','ULTA','KSS','M','NWL','BEN','LEV','REZI','VTRS'],
+  seykota:      ['SPY','QQQ','GLD','TLT','USO','EEM','IWM','DXY','AAPL','MSFT','NVDA','AMZN'],
+  burry:        ['BABA','JD','FIZZ','GEO','CVS','WBA','VFF','GENI','GOOG','RCM','CTRE','UAN'],
+  marks:        ['HYG','JNK','EMB','LQD','VNQ','MPW','LADR','BRSP','TPVG','ARCC','FS','PSEC'],
+  dalio:        ['SPY','GLD','TLT','EEM','DBC','VNQ','BND','IEF','BITO','BRK-B','VT','PDBC'],
+  wood:         ['TSLA','COIN','ROKU','SQSP','PATH','RXRX','ACMR','PACB','TWLO','SHOP','SQ','HOOD'],
+  basso:        ['SPY','QQQ','GLD','TLT','IWM','EEM','USO','DXY','VXX','HYG','DBC','BITO'],
+  raschke:      ['SPY','QQQ','NVDA','TSLA','AAPL','META','AMD','AMZN','MSFT','GOOGL','ARM','PLTR'],
+  zanger:       ['NVDA','PLTR','CRWD','MELI','CELH','HIMS','AXON','TTD','DUOL','ASTS','IONQ','ARM'],
+  schwartz:     ['SPY','QQQ','NVDA','TSLA','AAPL','META','AMZN','MSFT','AMD','NFLX','GOOGL','CRWD'],
+  driehaus:     ['HIMS','CELH','AXON','CRWD','PLTR','RDDT','ASTS','TMDX','DUOL','IREN','IONQ','ARM'],
+};
+
+// Per-session picks cache: traderId → array of pick objects
+const PICKS_CACHE = {};
+let activePicsTrader = null;
+let picksIsScanning = false;
+
+// Build the picks system prompt for each trader
+function buildPicksPrompt(trader, universe) {
+  return `${trader.persona}
+
+You are doing your DAILY SCAN. Today you are scanning this universe of stocks to find your best opportunities:
+${universe.join(', ')}
+
+Your job: Think out loud as ${trader.name}. Scan this universe through your exact methodology. Surface the 3-5 stocks that best fit your framework RIGHT NOW based on current market conditions.
+
+For EACH pick, you MUST produce a structured block using EXACTLY this format (no deviation):
+
+===PICK_START===
+TICKER:[symbol]
+SIGNAL:[STRONG|WATCH|REVIEW]
+THESIS:[one sentence — what you see, in your voice]
+DETAIL:[2-4 sentences of detailed analysis in your voice. Be specific. Reference your methodology by name.]
+CATALYST:[what event or setup triggers the move]
+STOP:[educational stop level — e.g. "below the 200-day MA" or "$X support level"]
+===PICK_END===
+
+Produce 3-5 picks. Only include stocks that genuinely fit your methodology — if something in your universe does not fit, skip it. Speak in first person as ${trader.name} throughout.
+
+After all picks, add one sentence: your overall read on the current market environment from your methodology's perspective.
+
+Educational analysis only. Not investment advice.`;
+}
+
+// Parse the structured pick blocks from AI response
+function parsePicksResponse(text, trader) {
+  const blocks = [];
+  const matches = text.matchAll(/===PICK_START===([\s\S]*?)===PICK_END===/g);
+  for (const m of matches) {
+    const block = m[1];
+    const str = k => { const r = block.match(new RegExp(`^${k}:(.+)$`,'m')); return r ? r[1].trim() : null; };
+    const pick = {
+      ticker:    str('TICKER'),
+      signal:    (str('SIGNAL') || 'WATCH').toLowerCase(),
+      thesis:    str('THESIS') || '',
+      detail:    str('DETAIL') || '',
+      catalyst:  str('CATALYST') || '',
+      stop:      str('STOP') || '',
+      traderId:  trader.id,
+      traderName:trader.name,
+      arch:      trader.arch,
+    };
+    if (pick.ticker) blocks.push(pick);
+  }
+  // Extract the closing market comment (after last ===PICK_END===)
+  const marketComment = text.split('===PICK_END===').pop()?.trim().replace(/\n+/g,' ') || '';
+  return { picks: blocks, marketComment };
+}
+
+// Show skeleton loaders while scanning
+function showPicksSkeleton(count=4) {
+  const list = document.getElementById('picks-list');
+  list.innerHTML = Array.from({length:count}, () => `
+    <div class="picks-skeleton">
+      <div class="skel-ticker"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="width:30%"></div>
+        <div class="skel-line" style="width:80%"></div>
+        <div class="skel-line skel-line-short"></div>
+      </div>
+    </div>`).join('');
+}
+
+// Render picks for the active trader
+function renderPicks(traderId) {
+  const list = document.getElementById('picks-list');
+  const cached = PICKS_CACHE[traderId];
+  if (!cached) { showPicksSkeleton(); return; }
+  const { picks, marketComment } = cached;
+  if (!picks.length) {
+    list.innerHTML = `<div class="picks-empty"><div class="picks-empty-icon">🔍</div><h3>No picks surfaced</h3><p>The methodology scan ran but no stocks in this universe met the criteria right now.</p></div>`;
+    return;
+  }
+  list.innerHTML = '';
+  if (marketComment) {
+    const bar = document.createElement('div');
+    bar.style.cssText = 'padding:10px 14px;background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;font-size:12px;color:var(--slate-light);line-height:1.6;border-left:3px solid var(--emerald);';
+    bar.innerHTML = `<span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:4px;">${TRADERS.find(t=>t.id===traderId)?.name} — Market Read</span>${escHtml(marketComment)}`;
+    list.appendChild(bar);
+  }
+  picks.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pick-card';
+    card.id = `pick-card-${traderId}-${i}`;
+    card.innerHTML = `
+      <div class="pick-card-main">
+        <div class="pick-card-ticker">${escHtml(p.ticker)}</div>
+        <div class="pick-card-info">
+          <div class="pick-card-by">${escHtml(p.traderName)} &middot; ${escHtml(p.arch)}</div>
+          <div class="pick-card-thesis">${escHtml(p.thesis)}</div>
+        </div>
+        <div class="pick-card-actions">
+          <span class="tag tag-${p.signal}">${p.signal.toUpperCase()}</span>
+          <button class="pick-card-expand" onclick="togglePick(this)" aria-expanded="false">+</button>
+        </div>
+      </div>
+      <div class="pick-card-detail" id="pcd-${traderId}-${i}">
+        <div class="pick-detail-text">${escHtml(p.detail).replace(/\n/g,'<br>')}</div>
+        ${p.catalyst ? `<div style="margin-bottom:10px;"><span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;">Catalyst</span><div style="font-size:12px;color:var(--slate-light);margin-top:3px;">${escHtml(p.catalyst)}</div></div>` : ''}
+        ${p.stop ? `<div style="margin-bottom:12px;"><span style="font-family:var(--mono);font-size:9px;color:var(--danger);text-transform:uppercase;letter-spacing:0.1em;">Educational stop</span><div style="font-size:12px;color:var(--slate-light);margin-top:3px;">${escHtml(p.stop)}</div></div>` : ''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+          <button class="btn btn-primary btn-sm" onclick="analyzeFromPick('${escHtml(p.ticker)}','${escHtml(p.traderId)}')">
+            <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Deep dive in engine
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openAddWatchlistModal('${escHtml(p.ticker)}','${escHtml(p.traderId)}')">+ Watchlist</button>
+        </div>
+        <!-- Inline chat with this trader about this pick -->
+        <div class="pick-chat-area">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Ask ${escHtml(p.traderName)} about ${escHtml(p.ticker)}</div>
+          <div class="pick-chat-msgs" id="pick-chat-${traderId}-${i}"></div>
+          <div class="pick-chat-input-row">
+            <input class="pick-chat-input" id="pick-chat-inp-${traderId}-${i}"
+              placeholder="Ask ${escHtml(p.traderName.split(' ')[0])} anything about this pick..."
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendPickChat('${escHtml(p.traderId)}',${i},'${escHtml(p.ticker)}','${escHtml(p.thesis.replace(/'/g,"\\'"))}');}">
+            <button class="pick-chat-send" id="pick-chat-btn-${traderId}-${i}"
+              onclick="sendPickChat('${escHtml(p.traderId)}',${i},'${escHtml(p.ticker)}','${escHtml(p.thesis.replace(/'/g,"\\'"))}')">
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+// Scan a trader's universe and generate live picks
+async function scanTraderPicks(trader) {
+  if (picksIsScanning) return;
+  if (PICKS_CACHE[trader.id]) { renderPicks(trader.id); return; }
+  picksIsScanning = true;
+  // Show scanning state
+  const statusBar = document.getElementById('picks-status-bar');
+  const statusText = document.getElementById('picks-status-text');
+  statusBar.style.display = 'block';
+  statusText.textContent = `${trader.name} scanning ${TRADER_UNIVERSES[trader.id]?.length || 0} stocks...`;
+  showPicksSkeleton(4);
+  try {
+    const universe = TRADER_UNIVERSES[trader.id] || [];
+    const prompt = buildPicksPrompt(trader, universe);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        system: prompt,
+        messages: [{ role:'user', content:`Run your daily scan now. Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}. Scan your universe and surface your best picks. Speak as ${trader.name}.` }],
+      })
+    });
+    if (!response.ok) throw new Error(`API error ${response.status}`);
+    const data = await response.json();
+    const rawText = data.content?.[0]?.text || '';
+    const parsed = parsePicksResponse(rawText, trader);
+    PICKS_CACHE[trader.id] = parsed;
+    // Mark tab as scanned
+    document.querySelectorAll('.trader-tab').forEach(t => {
+      if (t.dataset.trader === trader.id) t.classList.add('scanned');
+    });
+    // Update dashboard preview if this is the first scan
+    if (Object.keys(PICKS_CACHE).length === 1) updateDashPicksPreview();
+    renderPicks(trader.id);
+    queryCount++;
+    document.getElementById('stat-queries').textContent = queryCount;
+    showToast(`${trader.name} surfaced ${parsed.picks.length} picks`, 'success');
+  } catch(err) {
+    document.getElementById('picks-list').innerHTML = `<div class="picks-empty"><div class="picks-empty-icon">⚡</div><h3>Scan failed</h3><p>${escHtml(err.message)}</p><button class="btn btn-outline" onclick="scanTraderPicks(TRADERS.find(t=>t.id==='${trader.id}'))">Retry</button></div>`;
+    showToast(`Scan failed: ${err.message}`, 'error');
+  } finally {
+    picksIsScanning = false;
+    document.getElementById('picks-status-bar').style.display = 'none';
+    document.querySelector(`.trader-tab[data-trader="${trader.id}"]`)?.classList.remove('scanning');
+  }
+}
+
+// Switch active picks trader tab
+function switchPicksTrader(trader) {
+  activePicsTrader = trader;
+  document.querySelectorAll('.trader-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.trader-tab[data-trader="${trader.id}"]`)?.classList.add('active');
+  if (PICKS_CACHE[trader.id]) {
+    renderPicks(trader.id);
+  } else {
+    document.querySelector(`.trader-tab[data-trader="${trader.id}"]`)?.classList.add('scanning');
+    scanTraderPicks(trader);
+  }
+}
+
+// Update dash preview from first available cached picks
+function updateDashPicksPreview() {
+  const dp = document.getElementById('dash-picks-preview');
+  const allPicks = Object.values(PICKS_CACHE).flatMap(c => c.picks).slice(0, 3);
+  if (!allPicks.length) return;
+  dp.innerHTML = allPicks.map(p => `
+    <div class="recent-item">
+      <span class="recent-ticker">${escHtml(p.ticker)}</span>
+      <div class="recent-meta">
+        <div style="font-size:13px;color:var(--off-white);">${escHtml(p.thesis.substring(0,60))}...</div>
+        <div class="recent-trader">${escHtml(p.traderName)}</div>
+      </div>
+      <span class="tag tag-${p.signal}">${p.signal.toUpperCase()}</span>
+    </div>`).join('');
+}
+
+// Inline chat about a specific pick
+async function sendPickChat(traderId, pickIdx, ticker, thesis) {
+  const inputEl = document.getElementById(`pick-chat-inp-${traderId}-${pickIdx}`);
+  const btnEl   = document.getElementById(`pick-chat-btn-${traderId}-${pickIdx}`);
+  const msgsEl  = document.getElementById(`pick-chat-${traderId}-${pickIdx}`);
+  if (!inputEl || !msgsEl) return;
+  const text = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = '';
+  btnEl.disabled = true;
+  // Append user message
+  const userDiv = document.createElement('div');
+  userDiv.className = 'pick-chat-msg-user';
+  userDiv.textContent = text;
+  msgsEl.appendChild(userDiv);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  // Typing indicator
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'pick-chat-msg-ai';
+  typingDiv.innerHTML = '<span style="opacity:0.5">...</span>';
+  msgsEl.appendChild(typingDiv);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  try {
+    const trader = TRADERS.find(t => t.id === traderId);
+    if (!trader) throw new Error('Trader not found');
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        system: `${trader.persona}\n\nYou just surfaced ${ticker} as one of your picks today. Your thesis: "${thesis}". The user is asking you a follow-up question about this specific pick. Stay in character as ${trader.name}. Be concise — this is a conversational follow-up, not a full analysis. Educational content only.`,
+        messages: [{ role:'user', content:text }]
+      })
+    });
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'Analysis unavailable.';
+    typingDiv.innerHTML = reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  } catch(err) {
+    typingDiv.textContent = `Error: ${err.message}`;
+  } finally {
+    btnEl.disabled = false;
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+}
+
+const ONBOARDING_STEPS = [
+  {step:'Step 1 of 3',title:'Welcome to Trader Atlas',body:'You have full Elite access — 25 traders, unlimited AI queries, daily picks, watchlist, and the compare tool. Let us take 30 seconds to get you oriented.',btn:'Next'},
+  {step:'Step 2 of 3',title:'The AI Engine',body:'Go to The 25 Greats, select any trader, then type a ticker in the search bar above and press Enter. The engine analyzes that stock through their exact documented methodology.',btn:'Next'},
+  {step:'Step 3 of 3',title:'Daily Picks and Watchlist',body:'Every morning, Daily Picks shows what the methodology engines are flagging. Add any ticker to your Watchlist to track your thesis over time. Press / anywhere to focus the ticker search.',btn:"Let's go"},
+];
+
+// STATE
+let currentUser=null,selectedTrader=null,currentTicker='',chatHistory=[],watchlistItems=[],queryCount=0,sb=null,isStreaming=false,onboardingStep=0;
+
+// INIT
+window.addEventListener('load',async()=>{
+  if(!window.supabase){showToast('Could not connect to auth service.','error');return;}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  await loadUser(session.user);
+  buildUI();
+  setupKeyboard();
+  loadWatchlist();
+  if(!localStorage.getItem('ta_onboarded'))document.getElementById('onboarding-overlay').classList.add('show');
+});
+
+async function loadUser(authUser){
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',authUser.id).single();
+  currentUser={id:authUser.id,email:authUser.email,display_name:profile?.display_name||authUser.email.split('@')[0],tier:DEMO_MODE?'elite':(profile?.tier||'starter')};
+  const initials=currentUser.display_name.slice(0,2).toUpperCase();
+  document.getElementById('user-avatar').textContent=initials;
+  document.getElementById('user-name').textContent=currentUser.display_name;
+  document.getElementById('user-tier').textContent=currentUser.tier.toUpperCase();
+  document.getElementById('settings-email').textContent=currentUser.email;
+  document.getElementById('settings-name').value=currentUser.display_name;
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('dash-greeting').textContent=`${g}, ${currentUser.display_name}.`;
+}
+
+function buildUI(){
+  // Quick trader grid
+  const qg=document.getElementById('quick-trader-grid');
+  ['camillo','minervini','livermore','buffett','lynch','cameron'].forEach(id=>{
+    const t=TRADERS.find(x=>x.id===id);
+    if(!t)return;
+    const b=document.createElement('button');
+    b.className='quick-trader-btn';
+    b.innerHTML=`<div class="qtb-arch">${t.arch}</div><div class="qtb-name">${t.name}</div>`;
+    b.onclick=()=>selectTrader(t);
+    qg.appendChild(b);
+  });
+  // Dash picks preview — placeholder until first scan runs
+  const dp=document.getElementById('dash-picks-preview');
+  dp.innerHTML=`<div style="text-align:center;padding:20px 12px;color:var(--slate);font-size:12px;"><div style="font-size:22px;margin-bottom:8px;opacity:0.3;">⚡</div>Open Daily Picks to run the methodology engines</div>`;
+  // Traders grid + filters
+  buildTradersGrid(TRADERS);
+  const archs=['All',...new Set(TRADERS.map(t=>t.arch))];
+  const fr=document.getElementById('traders-filter-row');
+  archs.forEach(arch=>{
+    const b=document.createElement('button');
+    b.className='filter-chip'+(arch==='All'?' active':'');
+    b.textContent=arch;
+    b.onclick=()=>{
+      document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      buildTradersGrid(arch==='All'?TRADERS:TRADERS.filter(t=>t.arch===arch));
+    };
+    fr.appendChild(b);
+  });
+  // Picks view — build trader tab row (all 25) and auto-load first trader
+  document.getElementById('picks-date-label').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const tabRow=document.getElementById('picks-trader-tabs');
+  tabRow.innerHTML='';
+  TRADERS.forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='trader-tab';
+    btn.dataset.trader=t.id;
+    btn.textContent=t.name;
+    btn.title=t.arch;
+    btn.onclick=()=>switchPicksTrader(t);
+    tabRow.appendChild(btn);
+  });
+  // Auto-load first trader (Camillo) when picks view is first opened
+  // Actual load happens in navigate() when view-picks becomes active
+  // Compare selects
+  ['compare-t1','compare-t2','compare-t3'].forEach((id,i)=>{
+    const s=document.getElementById(id);
+    if(i===2)s.innerHTML='<option value="">None</option>';
+    else s.innerHTML='';
+    TRADERS.forEach(t=>{
+      const o=document.createElement('option');
+      o.value=t.id;o.textContent=t.name;
+      if(i===0&&t.id==='camillo')o.selected=true;
+      if(i===1&&t.id==='minervini')o.selected=true;
+      s.appendChild(o);
+    });
+  });
+  // Modal trader select
+  const ms=document.getElementById('modal-trader-select');
+  TRADERS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${t.name} (${t.arch})`;ms.appendChild(o);});
+}
+
+function buildTradersGrid(traders){
+  const g=document.getElementById('traders-grid-app');
+  g.innerHTML='';
+  traders.forEach(t=>{
+    const c=document.createElement('div');
+    c.className='trader-card-app'+(selectedTrader?.id===t.id?' selected':'');
+    c.innerHTML=`<div class="tca-arch">${t.arch}</div><div class="tca-name">${t.name}</div><div class="tca-doc">${t.doc}</div>`;
+    c.onclick=()=>selectTrader(t);
+    g.appendChild(c);
+  });
+}
+
+// NAVIGATION
+const PAGE_TITLES={dashboard:'Dashboard',greats:'The 25 Greats',engine:'AI Engine',picks:'Daily Picks',watchlist:'Watchlist',compare:'Compare',settings:'Settings'};
+function navigate(viewId,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+viewId).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('topbar-title').textContent=PAGE_TITLES[viewId]||'';
+  if(viewId==='watchlist')renderWatchlist();
+  if(viewId==='picks'){
+    // Auto-load first trader if nothing has been scanned yet
+    if(!activePicsTrader){
+      const firstTrader=TRADERS[0];
+      switchPicksTrader(firstTrader);
+    } else {
+      renderPicks(activePicsTrader.id);
+    }
+  }
+}
+
+// TRADER SELECTION
+function selectTrader(trader){
+  selectedTrader=trader;
+  chatHistory=[];
+  document.getElementById('chat-window').innerHTML='';
+  // Render trader card in sidebar
+  document.getElementById('selected-trader-card').innerHTML=`<div class="stc-arch">${trader.arch}</div><div class="stc-name">${trader.name}</div><div class="stc-doc">${trader.doc}</div><ul class="stc-rules">${trader.rules.map(r=>`<li>${r}</li>`).join('')}</ul>`;
+  // Suggested questions
+  const qs={camillo:['Is SOFI a social arb play?','What social signals does Camillo look for?','Analyze HOOD for information asymmetry'],minervini:['Is PLTR in a Stage 2 base?','Does NVDA meet the trend template?','What makes a perfect Minervini setup?'],buffett:['Analyze AAPL as a Buffett investment','What makes a durable moat?','Is KO still a Buffett-quality business?'],lynch:['What makes a Lynch 10-bagger?','Calculate the PEG ratio for MSFT','Find me a Lynch-style compounder'],default:['Analyze this stock for me','What are your key entry criteria?','Walk me through your methodology']};
+  const suggestedQs=qs[trader.id]||qs.default;
+  document.getElementById('chat-window').innerHTML=`<div class="chat-empty"><div class="chat-empty-icon">⚡</div><h3>${trader.name} is ready</h3><p>Type a ticker above or ask anything about a stock through ${trader.name.split(' ')[0]}'s methodology.</p><div class="suggested-qs">${suggestedQs.map(q=>`<button class="suggested-q" onclick="useSuggestedQ('${q.replace(/'/g,"\\'")}' )">${q}</button>`).join('')}</div></div>`;
+  // Enable input
+  const ci=document.getElementById('chat-input');
+  ci.disabled=false;
+  ci.placeholder=`Ask ${trader.name.split(' ')[0]} anything... (Enter to send, Shift+Enter for new line)`;
+  document.getElementById('chat-send-btn').disabled=false;
+  navigate('engine',document.querySelector('[data-view="engine"]'));
+  showToast(`${trader.name} methodology loaded`,'success');
+  // Update grid selection state
+  document.querySelectorAll('.trader-card-app').forEach(c=>{c.classList.remove('selected');if(c.querySelector('.tca-name')?.textContent===trader.name)c.classList.add('selected');});
+}
+
+function useSuggestedQ(q){document.getElementById('chat-input').value=q;sendMessage();}
+
+// AI ENGINE
+async function sendMessage(){
+  if(isStreaming||!selectedTrader)return;
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  input.style.height='auto';
+  const fullQuery=currentTicker?`[Analyzing ticker: ${currentTicker}] ${text}`:text;
+  chatHistory.push({role:'user',content:fullQuery});
+  appendMsg('user',text);
+  const typingEl=appendTyping();
+  isStreaming=true;
+  document.getElementById('chat-send-btn').disabled=true;
+  try{
+    const systemPrompt=`${selectedTrader.persona}\n\nKey methodology rules:\n${selectedTrader.rules.map((r,i)=>`${i+1}. ${r}`).join('\n')}${currentTicker?`\n\nThe user is currently analyzing the ticker: ${currentTicker}`:''}`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages:chatHistory})});
+    if(!res.ok)throw new Error(`API ${res.status}`);
+    const data=await res.json();
+    const aiText=data.content?.[0]?.text||'No response received.';
+    typingEl.remove();
+    chatHistory.push({role:'assistant',content:aiText});
+    appendMsg('ai',aiText);
+    queryCount++;
+    document.getElementById('stat-queries').textContent=queryCount;
+    if(sb&&currentUser)sb.from('query_log').insert({user_id:currentUser.id,trader_id:selectedTrader.id,ticker:currentTicker||null});
+  }catch(err){
+    typingEl.remove();
+    appendMsg('ai',`Analysis unavailable — check your API connection. (${err.message})`);
+    showToast('Could not reach AI engine','error');
+  }finally{
+    isStreaming=false;
+    document.getElementById('chat-send-btn').disabled=false;
+  }
+}
+
+function appendMsg(role,text){
+  const cw=document.getElementById('chat-window');
+  const el=document.createElement('div');
+  el.className='msg msg-'+role;
+  const formatted=escHtml(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'</p><p style="margin-top:8px;">').replace(/\n/g,'<br>');
+  if(role==='user'){el.innerHTML=`<div class="msg-bubble">${escHtml(text)}</div><div class="msg-meta">${timeNow()}</div>`;}
+  else{el.innerHTML=`<div class="msg-bubble"><p>${formatted}</p></div><div class="msg-meta"><span class="msg-trader-tag">${selectedTrader?.name}</span>${timeNow()}${currentTicker?`<button class="add-watchlist-btn" onclick="openAddWatchlistModal('${currentTicker}','${selectedTrader?.id}')">+ Watchlist</button>`:''}</div>`;}
+  cw.appendChild(el);
+  cw.scrollTop=cw.scrollHeight;
+}
+
+function appendTyping(){
+  const cw=document.getElementById('chat-window');
+  const el=document.createElement('div');
+  el.className='msg msg-ai';
+  el.innerHTML='<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  cw.appendChild(el);
+  cw.scrollTop=cw.scrollHeight;
+  return el;
+}
+
+// GLOBAL TICKER
+function setupKeyboard(){
+  const gt=document.getElementById('global-ticker');
+  gt.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){
+      const val=this.value.trim().toUpperCase();
+      if(!val)return;
+      currentTicker=val;
+      document.getElementById('market-data-card').style.display='block';
+      document.getElementById('mdc-ticker').textContent=val;
+      document.getElementById('mdc-price').textContent='Pro / Elite';
+      document.getElementById('mdc-change').textContent='Live data coming soon';
+      if(!selectedTrader){navigate('greats',document.querySelector('[data-view="greats"]'));showToast(`Ticker set to ${val}. Now pick a trader.`,'info');}
+      else{navigate('engine',document.querySelector('[data-view="engine"]'));const ci=document.getElementById('chat-input');ci.value=`Analyze ${val} through your methodology`;ci.focus();}
+    }
+  });
+  // / shortcut
+  document.addEventListener('keydown',e=>{
+    const tag=document.activeElement.tagName.toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select')return;
+    if(e.key==='/'){{e.preventDefault();gt.focus();}}
+  });
+  // Chat input
+  const ci=document.getElementById('chat-input');
+  ci.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
+  ci.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
+  document.getElementById('chat-send-btn').addEventListener('click',sendMessage);
+}
+
+// PICKS
+function togglePick(btn){
+  const detail=btn.closest('.pick-card').querySelector('.pick-card-detail');
+  const open=detail.classList.toggle('open');
+  btn.textContent=open?'−':'+';
+}
+
+function analyzeFromPick(ticker,traderId){
+  const trader=TRADERS.find(t=>t.id===traderId);
+  if(!trader)return;
+  currentTicker=ticker;
+  document.getElementById('global-ticker').value=ticker;
+  document.getElementById('market-data-card').style.display='block';
+  document.getElementById('mdc-ticker').textContent=ticker;
+  selectTrader(trader);
+  setTimeout(()=>{document.getElementById('chat-input').value=`Analyze ${ticker} through your full methodology. Give me your complete assessment.`;sendMessage();},400);
+}
+
+// WATCHLIST
+async function loadWatchlist(){
+  if(!sb||!currentUser)return;
+  const{data}=await sb.from('watchlists').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  watchlistItems=data||[];
+  document.getElementById('stat-watchlist').textContent=watchlistItems.length;
+}
+
+function renderWatchlist(){
+  const c=document.getElementById('watchlist-rows');
+  if(!watchlistItems.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">👁</div><h3>Nothing here yet</h3><p>Add tickers from the AI engine or Daily Picks to track your thesis over time.</p><button class="btn btn-primary" onclick="openAddWatchlistModal()">Add your first ticker</button></div>';return;}
+  c.innerHTML=watchlistItems.map(item=>{
+    const trader=TRADERS.find(t=>t.id===item.trader_id);
+    return`<div class="wl-row"><div class="wl-ticker">${item.ticker}</div><div class="wl-trader">${item.trader_name}</div><div class="wl-arch">${trader?.arch||''}</div><div class="wl-notes" title="${escHtml(item.notes||'')}">${escHtml(item.notes||'—')}</div><div class="wl-actions"><button class="wl-action-btn" onclick="analyzeWatchlistItem('${item.ticker}','${item.trader_id}')" title="Analyze in engine"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></button><button class="wl-action-btn" onclick="removeWatchlistItem('${item.id}')" title="Remove" style="color:var(--danger);"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></div>`;
+  }).join('');
+}
+
+function openAddWatchlistModal(ticker='',traderId=''){
+  document.getElementById('modal-ticker').value=ticker;
+  if(traderId)document.getElementById('modal-trader-select').value=traderId;
+  document.getElementById('modal-notes').value='';
+  document.getElementById('modal-overlay').classList.add('show');
+  if(!ticker)document.getElementById('modal-ticker').focus();
+}
+
+async function saveWatchlistItem(){
+  const ticker=document.getElementById('modal-ticker').value.trim().toUpperCase();
+  const traderId=document.getElementById('modal-trader-select').value;
+  const notes=document.getElementById('modal-notes').value.trim();
+  if(!ticker||!traderId){showToast('Please fill in ticker and trader','error');return;}
+  const trader=TRADERS.find(t=>t.id===traderId);
+  if(!sb||!currentUser){showToast('Not connected','error');return;}
+  const{data,error}=await sb.from('watchlists').insert({user_id:currentUser.id,ticker,trader_id:traderId,trader_name:trader?.name||traderId,notes}).select().single();
+  if(error){showToast('Could not save to watchlist','error');return;}
+  watchlistItems.unshift(data);
+  document.getElementById('stat-watchlist').textContent=watchlistItems.length;
+  closeModal();
+  showToast(`${ticker} added to watchlist`,'success');
+  renderWatchlist();
+}
+
+async function removeWatchlistItem(id){
+  if(!sb)return;
+  const{error}=await sb.from('watchlists').delete().eq('id',id);
+  if(error){showToast('Could not remove item','error');return;}
+  watchlistItems=watchlistItems.filter(i=>i.id!==id);
+  document.getElementById('stat-watchlist').textContent=watchlistItems.length;
+  renderWatchlist();
+  showToast('Removed from watchlist','info');
+}
+
+function analyzeWatchlistItem(ticker,traderId){
+  const trader=TRADERS.find(t=>t.id===traderId);
+  if(!trader)return;
+  currentTicker=ticker;
+  document.getElementById('global-ticker').value=ticker;
+  selectTrader(trader);
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// COMPARE
+async function runCompare(){
+  const ticker=document.getElementById('compare-ticker').value.trim().toUpperCase();
+  const t1=document.getElementById('compare-t1').value;
+  const t2=document.getElementById('compare-t2').value;
+  const t3=document.getElementById('compare-t3').value;
+  if(!ticker){showToast('Please enter a ticker','error');return;}
+  if(t1===t2){showToast('Please select two different traders','error');return;}
+  const traders=[t1,t2,t3].filter(Boolean).map(id=>TRADERS.find(t=>t.id===id)).filter(Boolean);
+  const results=document.getElementById('compare-results');
+  results.style.gridTemplateColumns=`repeat(${traders.length},1fr)`;
+  results.innerHTML=traders.map(t=>`<div class="compare-col"><div class="compare-col-header"><div><div class="compare-col-name">${t.name}</div><div class="compare-col-arch">${t.arch}</div></div></div><div class="compare-col-loading" id="cl-${t.id}"><div class="loading-pulse" style="color:var(--slate);font-size:12px;">Analyzing ${ticker}...</div></div><div class="compare-col-body" id="cb-${t.id}" style="display:none;"></div></div>`).join('');
+  showToast(`Comparing ${ticker} across ${traders.length} traders...`,'info');
+  await Promise.all(traders.map(t=>runSingleCompare(ticker,t)));
+}
+
+async function runSingleCompare(ticker,trader){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:`${trader.persona} Keep your response to 3-4 focused paragraphs. This is educational methodology analysis only.`,messages:[{role:'user',content:`Analyze ${ticker} through your methodology. Be specific about whether it fits your framework and why.`}]})});
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'Analysis unavailable.';
+    const formatted=escHtml(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'</p><p style="margin-top:8px;">').replace(/\n/g,'<br>');
+    document.getElementById(`cl-${trader.id}`).style.display='none';
+    const b=document.getElementById(`cb-${trader.id}`);
+    b.style.display='block';b.innerHTML=`<p>${formatted}</p>`;
+    queryCount++;document.getElementById('stat-queries').textContent=queryCount;
+  }catch(err){
+    document.getElementById(`cl-${trader.id}`).innerHTML=`<div style="color:var(--danger);font-size:12px;padding:16px;">Analysis failed — check API connection.</div>`;
+  }
+}
+
+// SETTINGS
+async function saveName(){
+  const name=document.getElementById('settings-name').value.trim();
+  if(!name||!sb||!currentUser)return;
+  const{error}=await sb.from('profiles').update({display_name:name}).eq('id',currentUser.id);
+  if(error){showToast('Could not save name','error');return;}
+  currentUser.display_name=name;
+  document.getElementById('user-name').textContent=name;
+  document.getElementById('user-avatar').textContent=name.slice(0,2).toUpperCase();
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('dash-greeting').textContent=`${g}, ${name}.`;
+  showToast('Name updated','success');
+}
+
+// ONBOARDING
+function nextOnboarding(){
+  onboardingStep++;
+  if(onboardingStep>=ONBOARDING_STEPS.length){dismissOnboarding();return;}
+  const s=ONBOARDING_STEPS[onboardingStep];
+  document.getElementById('ob-step').textContent=s.step;
+  document.getElementById('ob-title').textContent=s.title;
+  document.getElementById('ob-body').textContent=s.body;
+  document.getElementById('ob-next-btn').textContent=s.btn;
+  document.querySelectorAll('.ob-dot').forEach((d,i)=>d.classList.toggle('active',i===onboardingStep));
+}
+function dismissOnboarding(){document.getElementById('onboarding-overlay').classList.remove('show');localStorage.setItem('ta_onboarded','1');}
+document.getElementById('onboarding-overlay').addEventListener('click',function(e){if(e.target===this)dismissOnboarding();});
+
+// AUTH
+async function signOut(){if(sb)await sb.auth.signOut();window.location.href='login.html';}
+
+// TOAST
+function showToast(msg,type='info'){
+  const c=document.getElementById('toast');
+  const el=document.createElement('div');
+  el.className=`toast-item ${type}`;el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+// UTILS
+function escHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function timeNow(){return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+</script>
+</body>
+</html>
