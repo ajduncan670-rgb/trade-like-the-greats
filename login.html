@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -431,27 +432,28 @@ input:focus + .input-hint { display: block; }
   </div>
 </div>
 
-<!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ── CONFIG ──────────────────────────────────────────────────
-// Replace these with your actual Supabase project values
-// Found in: Supabase Dashboard > Project Settings > API
-const SUPABASE_URL = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const APP_URL = 'app.html'; // where to redirect after successful auth
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL     = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const APP_URL = 'app.html';
 
 // ── STATE ────────────────────────────────────────────────────
 let currentMode = 'signin';
+let supabase = null;
 
-// ── CHECK EXISTING SESSION ───────────────────────────────────
-// If user is already logged in, redirect straight to app
-(async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) window.location.href = APP_URL;
-})();
+// ── INIT SUPABASE SAFELY ─────────────────────────────────────
+// Runs after DOM is ready — UI works even if Supabase is slow
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // If already logged in, skip straight to app
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) window.location.href = APP_URL;
+  } else {
+    showError('Failed to connect to auth service. Please refresh the page.');
+  }
+});
 
 // ── TAB SWITCH ───────────────────────────────────────────────
 function switchTab(mode, btn) {
@@ -479,6 +481,8 @@ function switchTab(mode, btn) {
 async function handleAuth(e) {
   e.preventDefault();
   clearMessages();
+
+  if (!supabase) { showError('Auth service not ready. Please refresh the page.'); return; }
 
   const email    = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
