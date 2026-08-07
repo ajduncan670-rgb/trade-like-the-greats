@@ -25,6 +25,9 @@
   --sans:'Inter',system-ui,sans-serif;
   --mono:'JetBrains Mono',monospace;
   --sidebar:220px;--header:56px;--radius:6px;--radius-lg:10px;
+  --arch-momentum:#E55C5C;--arch-value:#3B82F6;--arch-macro:#8B5CF6;
+  --arch-day:#F59E0B;--arch-quant:#10B981;--arch-contrarian:#EC4899;
+  --arch-growth:#06B6D4;--arch-trend:#6366F1;--arch-innovation:#F97316;
 }
 html,body{height:100%;overflow:hidden;}
 body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webkit-font-smoothing:antialiased;display:flex;}
@@ -313,6 +316,93 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 .modal-textarea{min-height:80px;resize:vertical;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}
 
+/* TRADER STYLE / METHODOLOGY GUIDE */
+.style-guide-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.92);z-index:600;display:none;align-items:center;justify-content:center;}
+.style-guide-overlay.show{display:flex;}
+.style-guide-modal{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);width:min(680px,94vw);max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
+.style-guide-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+.style-guide-arch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.style-guide-title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--white);}
+.style-guide-arch{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;}
+.style-guide-close{margin-left:auto;background:none;border:none;color:var(--slate);cursor:pointer;font-size:18px;line-height:1;padding:4px;}
+.style-guide-close:hover{color:var(--off-white);}
+.style-guide-body{overflow-y:auto;padding:22px;}
+.style-guide-section{margin-bottom:20px;}
+.style-guide-section-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--slate);margin-bottom:8px;}
+.style-guide-text{font-size:13px;color:var(--slate-light);line-height:1.75;}
+.style-guide-rules{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.style-guide-rules li{font-size:12px;color:var(--off-white);display:flex;gap:8px;align-items:flex-start;line-height:1.5;}
+.style-guide-rules li::before{content:'→';color:var(--emerald);flex-shrink:0;font-family:var(--mono);font-size:10px;margin-top:2px;}
+.style-guide-famous{display:flex;flex-direction:column;gap:6px;}
+.style-guide-trade{background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;}
+.style-guide-trade-ticker{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--emerald);margin-bottom:2px;}
+.style-guide-trade-desc{font-size:11px;color:var(--slate);line-height:1.5;}
+.style-guide-level{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.06em;}
+.level-beginner{background:rgba(0,200,150,0.1);color:var(--emerald);border:1px solid var(--emerald-dim);}
+.level-intermediate{background:rgba(212,160,23,0.1);color:var(--gold);border:1px solid rgba(212,160,23,0.3);}
+.level-advanced{background:rgba(229,92,92,0.1);color:var(--danger);border:1px solid rgba(229,92,92,0.3);}
+.style-guide-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.style-guide-horizon{font-family:var(--mono);font-size:10px;color:var(--slate);border:1px solid var(--border);border-radius:99px;padding:3px 10px;}
+
+/* TRADE JOURNAL */
+.journal-form{display:flex;flex-direction:column;gap:14px;margin-bottom:24px;}
+.journal-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+.journal-label{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:5px;display:block;}
+.journal-input{width:100%;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--white);outline:none;}
+.journal-input:focus{border-color:var(--emerald-dim);}
+.journal-select{width:100%;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--off-white);outline:none;}
+.journal-select:focus{border-color:var(--emerald-dim);}
+.journal-entry{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:10px;}
+.journal-entry-header{display:grid;grid-template-columns:64px 1fr auto auto 100px 100px;gap:12px;padding:13px 16px;align-items:center;cursor:pointer;transition:background 0.15s;}
+.journal-entry-header:hover{background:var(--navy-hover);}
+.journal-entry-ticker{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--emerald);}
+.journal-entry-trader{font-size:12px;color:var(--slate-light);}
+.journal-entry-date{font-family:var(--mono);font-size:10px;color:var(--slate);}
+.journal-entry-pnl{font-family:var(--mono);font-size:13px;font-weight:600;}
+.journal-entry-pnl.win{color:var(--emerald);}
+.journal-entry-pnl.loss{color:var(--danger);}
+.journal-entry-pnl.open{color:var(--gold);}
+.journal-analysis{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
+.journal-analysis.open{display:block;padding-top:14px;}
+.journal-ai-response{font-size:13px;color:var(--slate-light);line-height:1.75;margin-bottom:12px;}
+.journal-ai-response strong{color:var(--emerald);}
+
+/* FAVORITES */
+.fav-btn{background:none;border:none;cursor:pointer;color:var(--slate);padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.15s;line-height:1;}
+.fav-btn:hover{color:var(--gold);}
+.fav-btn.active{color:var(--gold);}
+.fav-btn svg{width:14px;height:14px;transition:fill 0.15s;}
+.fav-btn.active svg{fill:var(--gold);}
+.fav-banner{background:var(--gold-bg);border:1px solid rgba(212,160,23,0.3);border-radius:var(--radius);padding:8px 14px;margin-bottom:16px;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:8px;}
+
+/* ARCH COLOR PILLS on trader cards */
+.arch-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
+.arch-dot-sm{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* PICKS ENTRY/EXIT STRUCTURE */
+.pick-trade-structure{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
+.pts-cell{background:var(--navy);border-radius:var(--radius);padding:8px 10px;border:1px solid var(--border);}
+.pts-label{font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate);margin-bottom:3px;}
+.pts-val{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--off-white);}
+.pts-cell.entry .pts-val{color:var(--emerald);}
+.pts-cell.stop .pts-val{color:var(--danger);}
+.pts-cell.target .pts-val{color:var(--emerald);}
+.pts-cell.hold .pts-val{color:var(--gold);}
+
+/* DISCLAIMER BANNER */
+.disclaimer-banner{background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:var(--radius);padding:8px 14px;margin-bottom:16px;font-family:var(--mono);font-size:9px;color:var(--slate);letter-spacing:0.04em;display:flex;align-items:center;gap:8px;}
+.disclaimer-banner::before{content:'⚠';font-size:11px;color:var(--gold);flex-shrink:0;}
+
+/* REFRESH BUTTON */
+.picks-refresh-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--radius);border:1px solid var(--border);background:none;color:var(--slate);font-size:11px;cursor:pointer;transition:all 0.15s;font-family:var(--sans);}
+.picks-refresh-btn:hover{border-color:var(--emerald-dim);color:var(--emerald);}
+.picks-refresh-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+.picks-timestamp{font-family:var(--mono);font-size:9px;color:var(--slate);margin-left:6px;}
+
+/* COPY BUTTON */
+.msg-copy-btn{background:none;border:none;color:var(--slate);cursor:pointer;padding:2px 6px;border-radius:3px;font-family:var(--mono);font-size:9px;transition:all 0.15s;}
+.msg-copy-btn:hover{color:var(--emerald);background:var(--emerald-bg);}
+
 /* RESPONSIVE */
 @media(max-width:1024px){.traders-grid-app{grid-template-columns:repeat(3,1fr);}.dash-stats{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:768px){#sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);z-index:200;}.engine-layout{grid-template-columns:1fr;}.engine-sidebar{display:none;}.traders-grid-app{grid-template-columns:repeat(2,1fr);}.dash-grid{grid-template-columns:1fr;}.compare-results{grid-template-columns:1fr;}}
@@ -348,6 +438,15 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
     </button>
     <button class="nav-item" data-view="compare" onclick="navigate('compare',this)">
       <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Compare<span class="nav-badge badge-elite">ELITE</span>
+    </button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Elite Tools</div>
+    <button class="nav-item" data-view="journal" onclick="navigate('journal',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Trade Journal<span class="nav-badge badge-elite">ELITE</span>
+    </button>
+    <button class="nav-item" data-view="favorites" onclick="navigate('favorites',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>My Favorites
     </button>
   </div>
   <div class="sidebar-section">
@@ -470,6 +569,13 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
       </div>
       <!-- Trader tab row — all 25 traders -->
       <div class="trader-tab-row" id="picks-trader-tabs"></div>
+      <!-- Refresh bar -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="picks-refresh-btn" id="picks-refresh-btn" onclick="refreshActivePicks()">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh picks
+        </button>
+        <span class="picks-timestamp" id="picks-timestamp"></span>
+      </div>
       <!-- Status bar -->
       <div id="picks-status-bar" style="display:none;margin-bottom:16px;">
         <div class="picks-status">
@@ -477,6 +583,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
           <span id="picks-status-text"></span>
         </div>
       </div>
+      <div class="disclaimer-banner">Educational methodology analysis only. Not investment advice. Not affiliated with named traders.</div>
       <!-- Picks content: skeleton → results -->
       <div id="picks-list"></div>
     </div>
@@ -541,6 +648,92 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
     </div>
 
   </div>
+
+    <!-- TRADE JOURNAL -->
+    <div class="view" id="view-journal">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div><h1>Trade Journal</h1><p>Log your trades and get a post-mortem through your trader's methodology lens.</p></div>
+        <span class="tag tag-elite">ELITE</span>
+      </div>
+      <div class="disclaimer-banner">Educational post-mortem only. Not investment advice.</div>
+      <!-- Log new trade -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">Log a trade</span></div>
+        <div class="card-body">
+          <div class="journal-form">
+            <div class="journal-row">
+              <div><label class="journal-label">Ticker</label><input class="journal-input" id="jnl-ticker" placeholder="e.g. SOFI" style="text-transform:uppercase;" maxlength="10"></div>
+              <div><label class="journal-label">Trader lens</label><select class="journal-select" id="jnl-trader"></select></div>
+              <div><label class="journal-label">Entry price</label><input class="journal-input" id="jnl-entry-price" type="number" step="0.01" placeholder="0.00"></div>
+              <div><label class="journal-label">Entry date</label><input class="journal-input" id="jnl-entry-date" type="date"></div>
+            </div>
+            <div class="journal-row">
+              <div><label class="journal-label">Exit price</label><input class="journal-input" id="jnl-exit-price" type="number" step="0.01" placeholder="Leave blank if open"></div>
+              <div><label class="journal-label">Exit date</label><input class="journal-input" id="jnl-exit-date" type="date"></div>
+              <div><label class="journal-label">Position size ($)</label><input class="journal-input" id="jnl-size" type="number" placeholder="e.g. 500"></div>
+              <div><label class="journal-label">Outcome</label>
+                <select class="journal-select" id="jnl-outcome">
+                  <option value="open">Still open</option>
+                  <option value="win">Win</option>
+                  <option value="loss">Loss</option>
+                  <option value="breakeven">Breakeven</option>
+                </select>
+              </div>
+            </div>
+            <div><label class="journal-label">What was your thesis when you entered?</label><textarea class="journal-input" id="jnl-thesis" rows="2" style="resize:vertical;" placeholder="Why did you enter this trade?"></textarea></div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary" onclick="logTrade()">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log trade
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Trade log -->
+      <div id="journal-entries"></div>
+    </div>
+
+    <!-- MY FAVORITES -->
+    <div class="view" id="view-favorites">
+      <div class="page-header"><h1>My Favorites</h1><p>Your top 5 traders — your personal daily methodology watchlist.</p></div>
+      <div class="fav-banner" id="fav-banner" style="display:none;"></div>
+      <div id="favorites-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;"></div>
+      <div id="favorites-picks" style="margin-top:24px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- STYLE GUIDE MODAL -->
+<div class="style-guide-overlay" id="style-guide-overlay" onclick="closeStyleGuide(event)">
+  <div class="style-guide-modal" onclick="event.stopPropagation()">
+    <div class="style-guide-header">
+      <div class="style-guide-arch-dot" id="sg-arch-dot"></div>
+      <div>
+        <div class="style-guide-title" id="sg-trader-name"></div>
+        <div class="style-guide-arch" id="sg-arch-name"></div>
+      </div>
+      <button class="style-guide-close" onclick="closeStyleGuide()">✕</button>
+    </div>
+    <div class="style-guide-body">
+      <div class="style-guide-meta">
+        <div class="style-guide-level" id="sg-level"></div>
+        <div class="style-guide-horizon" id="sg-horizon"></div>
+      </div>
+      <div class="style-guide-section">
+        <div class="style-guide-section-label">What is this methodology?</div>
+        <div class="style-guide-text" id="sg-explainer"></div>
+      </div>
+      <div class="style-guide-section">
+        <div class="style-guide-section-label">Core rules</div>
+        <ul class="style-guide-rules" id="sg-rules"></ul>
+      </div>
+      <div class="style-guide-section">
+        <div class="style-guide-section-label">Famous trades</div>
+        <div class="style-guide-famous" id="sg-famous"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -575,8 +768,8 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 <script>
 // CONFIG
-const SUPABASE_URL = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 const DEMO_MODE         = true;
 
 // TRADER DATA
@@ -607,6 +800,62 @@ const TRADERS = [
   {id:'schwartz',name:'Marty Schwartz',arch:'Day Trading',doc:'Play great defense, not great offense. Protect capital above all.',rules:['Defense wins — protect capital above everything','Use the 10-day EMA as your trend filter','Know your daily loss limit before you trade','When in doubt, stay out'],persona:'You are Marty Schwartz, Pit Bull. Your entire edge is risk management. You are ruthless about protecting capital and have a clearly defined daily loss limit. Your analysis always starts with defense: is the trend right, what is the risk, and is the potential reward worth the risk? Educational analysis only.'},
   {id:'driehaus',name:'Richard Driehaus',arch:'Momentum / Growth',doc:'Buy high, sell higher. Momentum is a fundamental force in markets.',rules:['Buy stocks making new highs, not new lows','Earnings acceleration is the primary driver','Relative strength must be in the top decile','Price momentum precedes fundamental recognition'],persona:'You are Richard Driehaus. You pioneered momentum investing — buying stocks already moving strongly higher on the thesis that momentum is a fundamental force. Your analysis looks for: earnings acceleration, relative strength leadership, and whether the institutional recognition of growth is still early. Educational analysis only.'},
 ];
+
+// ═══════════════════════════════════════════════════
+// TRADER METADATA — colors, difficulty, famous trades
+// ═══════════════════════════════════════════════════
+const ARCH_COLORS = {
+  'Social Arbitrage':    {color:'#D97706',bg:'rgba(217,119,6,0.1)',  token:'--arch-momentum'},
+  'Momentum Breakout':   {color:'#E55C5C',bg:'rgba(229,92,92,0.1)',  token:'--arch-momentum'},
+  'Trend Following':     {color:'#6366F1',bg:'rgba(99,102,241,0.1)', token:'--arch-trend'},
+  'Value / Fundamental': {color:'#3B82F6',bg:'rgba(59,130,246,0.1)', token:'--arch-value'},
+  'Growth at Value':     {color:'#06B6D4',bg:'rgba(6,182,212,0.1)',  token:'--arch-growth'},
+  'Macro / Reflexivity': {color:'#8B5CF6',bg:'rgba(139,92,246,0.1)', token:'--arch-macro'},
+  'Quantitative':        {color:'#10B981',bg:'rgba(16,185,129,0.1)', token:'--arch-quant'},
+  'Macro Trend':         {color:'#8B5CF6',bg:'rgba(139,92,246,0.1)', token:'--arch-macro'},
+  'Macro / Momentum':    {color:'#8B5CF6',bg:'rgba(139,92,246,0.1)', token:'--arch-macro'},
+  'Day Trading':         {color:'#F59E0B',bg:'rgba(245,158,11,0.1)', token:'--arch-day'},
+  'Deep Value':          {color:'#3B82F6',bg:'rgba(59,130,246,0.1)', token:'--arch-value'},
+  'Distressed Value':    {color:'#EC4899',bg:'rgba(236,72,153,0.1)', token:'--arch-contrarian'},
+  'Activist / Contrarian':{color:'#EC4899',bg:'rgba(236,72,153,0.1)',token:'--arch-contrarian'},
+  'Deep Contrarian':     {color:'#EC4899',bg:'rgba(236,72,153,0.1)', token:'--arch-contrarian'},
+  'Contrarian / Value':  {color:'#EC4899',bg:'rgba(236,72,153,0.1)', token:'--arch-contrarian'},
+  'Macro / Systematic':  {color:'#8B5CF6',bg:'rgba(139,92,246,0.1)', token:'--arch-macro'},
+  'Disruptive Innovation':{color:'#F97316',bg:'rgba(249,115,22,0.1)',token:'--arch-innovation'},
+  'Short-term Momentum': {color:'#E55C5C',bg:'rgba(229,92,92,0.1)',  token:'--arch-momentum'},
+  'Momentum / Growth':   {color:'#E55C5C',bg:'rgba(229,92,92,0.1)',  token:'--arch-momentum'},
+};
+function archColor(arch){return ARCH_COLORS[arch]||{color:'var(--slate)',bg:'rgba(138,155,176,0.1)'};}
+
+const TRADER_META = {
+  camillo:      {level:'Intermediate',horizon:'6–18 months',famousTrades:[{ticker:'DOREL',desc:'Reddit pandemic bike demand — 629% gain'},{ticker:'CELSIUS',desc:'TikTok daily ritual before institutional coverage'},{ticker:'CROCS',desc:'Cultural revival via healthcare + celebrity collab'}],explainer:'Social Arbitrage means finding stocks where the general public already knows something that Wall Street hasn't priced in yet. Chris Camillo searches social media, Reddit, TikTok, and everyday conversations for behavioral signals — products people are suddenly buying, trends exploding before they're mainstream — and positions before institutional money arrives. The edge closes when the story hits CNBC.'},
+  minervini:    {level:'Advanced',horizon:'3–12 months',famousTrades:[{ticker:'STRATEGY',desc:'1997 U.S. Investing Championship — 155% return'},{ticker:'Multiple',desc:'4 consecutive national trading championship wins'},{ticker:'SEPA',desc:'Specific Entry Point Analysis — published in Market Wizards'}],explainer:'SEPA (Specific Entry Point Analysis) is a precision momentum system. Minervini only buys stocks in a Stage 2 uptrend — price above rising 150 and 200-day moving averages — breaking out of a tight consolidation base on high volume. The relative strength line must hit new highs before price. He cuts every loss at 7-8% with no exceptions.'},
+  livermore:    {level:'Advanced',horizon:'Weeks to months',famousTrades:[{ticker:'COTTON',desc:'1906 — Cornered the cotton market'},{ticker:'MARKET',desc:'1929 Crash — Shorted and made $100M'},{ticker:'UNION PACIFIC',desc:'1906 San Francisco earthquake trade'}],explainer:'Jesse Livermore was the original tape reader. He believed markets tell you everything you need to know through price action — the "line of least resistance." He waited patiently for the right moment, then bet big. His core insight: don't fight what the market is telling you, and never average down on a losing position.'},
+  buffett:      {level:'Beginner',horizon:'Forever',famousTrades:[{ticker:'GEICO',desc:'Insurance moat — foundation of Berkshire'},{ticker:'KO',desc:'Brand moat bought in 1988 — never sold'},{ticker:'AAPL',desc:'Largest position — consumer ecosystem moat'}],explainer:'Warren Buffett buys businesses, not stocks. He looks for companies with a durable competitive advantage (the "moat") — a brand, patent, network effect, or cost advantage that competitors cannot easily replicate. He only buys at a "margin of safety" — a price well below what the business is worth. Then he holds forever.'},
+  lynch:        {level:'Beginner',horizon:'1–5 years',famousTrades:[{ticker:'DUNKIN',desc:'Noticed Massachusetts obsession before going public'},{ticker:'CHRYSLER',desc:'Turnaround when everyone wrote it off'},{ticker:'FANNIE MAE',desc:'Largest Magellan Fund position — 100x}'}],explainer:'Peter Lynch's approach: invest in what you know. If you notice a product, restaurant, or service gaining popularity before analysts do, that's an edge. He used the PEG ratio (Price-to-Earnings divided by Growth rate) as his primary valuation tool — a PEG below 1 means you're getting the growth cheap. He also classified every stock into one of 6 types so he knew what to expect from each.'},
+  soros:        {level:'Advanced',horizon:'Months to years',famousTrades:[{ticker:'GBP',desc:'1992 — Broke the Bank of England, $1B profit'},{ticker:'ASIAN CURRENCIES',desc:'1997 Asian financial crisis trades'},{ticker:'GOLD',desc:'2010 — Called it "ultimate bubble," profited on both sides'}],explainer:'George Soros sees markets as inherently biased by participants' perceptions. His theory of reflexivity says that what investors believe about a market actually changes the market's fundamentals — creating self-reinforcing boom-bust cycles. He looks for the dominant market narrative, assesses whether it's sustainable, and positions for the moment it reverses.'},
+  simons:       {level:'Advanced',horizon:'Days to weeks',famousTrades:[{ticker:'MEDALLION',desc:'66% average annual return before fees, 30+ years'},{ticker:'STATISTICAL ARB',desc:'Discovered recurring price anomalies via pattern analysis'},{ticker:'CROSS-ASSET',desc:'Non-correlated signal combination across global markets'}],explainer:'Jim Simons built the most successful hedge fund in history using pure mathematics. His Medallion Fund found statistical patterns in market data that repeat with enough frequency and size to be profitable after costs. He never had a theory about why a pattern exists — only that it does. He hired mathematicians and scientists, not traders or economists.'},
+  tudor:        {level:'Advanced',horizon:'Days to months',famousTrades:[{ticker:'1987 CRASH',desc:'Predicted and profited from Black Monday — tripled money'},{ticker:'COTTON',desc:'Early career commodity trend trades'},{ticker:'MACRO',desc:'Global macro strategy across equities, bonds, FX, commodities'}],explainer:'Paul Tudor Jones is obsessed with not losing money. His entire framework starts with defense — define your maximum loss before thinking about gains. He requires a 5:1 reward-to-risk ratio before any trade. He blends macro analysis with technical chart reading, and he cuts losing positions the moment his thesis is violated. "Losers average losers" is his most quoted rule.'},
+  druckenmiller:{level:'Advanced',horizon:'Months to years',famousTrades:[{ticker:'GBP',desc:'1992 — Collaborated with Soros on Bank of England trade'},{ticker:'GERMAN BONDS',desc:'1989 — Berlin Wall bet, massive profit'},{ticker:'TECH',desc:'1999 — Late to dot-com, then shorted perfectly at the top'}],explainer:'Stan Druckenmiller starts with the big macro picture — what is the Fed doing, where are rates, what is the economic cycle — then finds the single best equity to express that view. When he has conviction, he concentrates dramatically. He's known for changing his mind quickly and completely when facts change, never letting ego hold him in a bad trade.'},
+  cameron:      {level:'Advanced',horizon:'Minutes to hours',famousTrades:[{ticker:'MULTIPLE',desc:'Turned $583 to $100,000+ through momentum trading'},{ticker:'SMALL CAP',desc:'Low-float gap-and-go stocks premarket'},{ticker:'LIVE TRADING',desc:'Transparency — streams live P&L daily on Warrior Trading'}],explainer:'Ross Cameron trades the strongest gap-up stocks every morning. He looks for low-float stocks (fewer shares outstanding = bigger price moves) that have gapped up on news premarket, then waits for the first pullback and confirmation before entering. Every trade has a hard stop defined before entry. He never holds through news he didn't know about before his entry.'},
+  graham:       {level:'Beginner',horizon:'1–3 years',famousTrades:[{ticker:'GEICO',desc:'Taught Buffett — bought at deep discount to assets'},{ticker:'NET-NETS',desc:'Stocks below net current asset value — classic Graham screen'},{ticker:'NORTHERN PIPELINE',desc:'Forced management to distribute hidden cash'}],explainer:'Benjamin Graham is the father of value investing. His core principle: never pay full price for a business. He required a "margin of safety" of at least 33% — buying $1 of value for 67 cents or less. He focused on balance sheet strength, earnings consistency, and low debt. His most famous screen: net-nets, stocks trading below the value of their current assets minus all liabilities.'},
+  oneil:        {level:'Intermediate',horizon:'4–12 weeks',famousTrades:[{ticker:'CISCO',desc:'Early CAN SLIM identification of tech breakout'},{ticker:'AOL',desc:'Internet era breakout using RS line leading'},{ticker:'Multiple',desc:'1962 U.S. Investing Championship win — 115% return'}],explainer:'CAN SLIM is William O'Neil's 7-factor checklist: Current earnings up 25%+, Annual earnings growth 25%+ for 3 years, New product/service/management, Supply and demand showing institutional buying, Leader in its sector by relative strength, Institutional sponsorship increasing, Market in a confirmed uptrend. He only buys when all 7 boxes check.'},
+  darvas:       {level:'Intermediate',horizon:'Weeks to months',famousTrades:[{ticker:'LORILLARD',desc:'Box breakout — 2,000% gain over 3 years'},{ticker:'E.L. BRUCE',desc:'Darvas Box applied — turned $25K into $2.25M total run'},{ticker:'THIOKOL CHEMICAL',desc:'Rocket fuel company — caught the space race theme'}],explainer:'Nicolas Darvas was a professional dancer who developed his trading system while touring internationally with no access to real-time data. He identified "boxes" — price ranges where stocks consolidate — and bought decisive breakouts above the upper boundary. He placed a stop just below the floor of the box. Simple, visual, and mechanical.'},
+  tepper:       {level:'Advanced',horizon:'6 months–3 years',famousTrades:[{ticker:'BANKS 2009',desc:'Bought distressed bank stocks at maximum fear — 120%+ returns'},{ticker:'EUROPE 2012',desc:'Bought when ECB "whatever it takes" speech hit'},{ticker:'AMAZON',desc:'Large position based on AWS dominance thesis'}],explainer:'David Tepper looks for maximum pessimism — situations where the market has priced in catastrophe but the actual outcome will be less bad. He made his first fortune buying distressed bank debt in the early 1990s. His 2009 bank trade is legendary: when everyone thought banks were going to zero, he bought them aggressively and returned 130% that year.'},
+  icahn:        {level:'Advanced',horizon:'1–5 years',famousTrades:[{ticker:'TWA',desc:'Hostile takeover, restructured, profited'},{ticker:'APPLE',desc:'Activist campaign for buybacks — $2B profit'},{ticker:'HERBALIFE',desc:'Counter-position to Ackman's short, eventually won'}],explainer:'Carl Icahn finds companies where poor management is destroying shareholder value and takes action. He buys a large enough stake to get a board seat or credible threat, then pushes for change — asset sales, buybacks, management replacement, or a full sale of the company. The edge: he can create his own catalyst rather than waiting for one.'},
+  seykota:      {level:'Intermediate',horizon:'Weeks to months',famousTrades:[{ticker:'SILVER',desc:'One of the first computerized commodity trend trades'},{ticker:'COCOA',desc:'Early systematic trend following in commodity markets'},{ticker:'Multiple',desc:'Turned $5,000 into $15M+ for clients over 12 years'}],explainer:'Ed Seykota was one of the first traders to use computers for systematic trend following. His system: define your entry (new high / trend start), define your stop (trend broken), and let the trade run until the trend ends. He believes 80% of trading results come from position sizing and money management, not from picking entries. Remove emotion entirely.'},
+  burry:        {level:'Advanced',horizon:'1–3 years',famousTrades:[{ticker:'MBS SHORTS',desc:'2008 — Subprime mortgage shorts, $800M personal profit'},{ticker:'WATER',desc:'Thesis: water rights are the next scarce commodity'},{ticker:'GME',desc:'Early small-cap value find before the squeeze'}],explainer:'Michael Burry reads every document. Full 10-Ks, prospectuses, footnotes, conference call transcripts — the things analysts skim. He looks for situations where the consensus view is wrong because everyone is reading the headline number rather than the real number. Free cash flow per share, not EPS, is his measure. He concentrates heavily in 8-15 positions.'},
+  marks:        {level:'Intermediate',horizon:'1–5 years',famousTrades:[{ticker:'HIGH YIELD DEBT',desc:'Founded Oaktree on distressed credit in 1995'},{ticker:'DISTRESSED DEBT',desc:'2008–09 deployed $10B+ at market bottom'},{ticker:'MEMOS',desc:'Investment memos have called every major cycle turn'}],explainer:'Howard Marks is a master of understanding where we are in the market cycle and positioning accordingly. His "second-level thinking" concept: don't just ask "is this a good company?" Ask "is this priced well given what everyone else already thinks about it?" He wrote The Most Important Thing and is famous for his Oaktree memos that have predicted every major market turn.'},
+  dalio:        {level:'Intermediate',horizon:'Months to years',famousTrades:[{ticker:'ALL WEATHER',desc:'Portfolio designed to perform in any economic environment'},{ticker:'1982 DEBT CRISIS',desc:'Predicted correctly, positioned across multiple asset classes'},{ticker:'CHINA',desc:'Early institutional investor in Chinese markets'}],explainer:'Ray Dalio built Bridgewater by understanding the "economic machine" — how credit, debt, and productivity cycles interact and repeat throughout history. His All Weather portfolio allocates across uncorrelated assets (stocks, bonds, gold, commodities) to reduce risk in any environment. He believes almost any scenario has happened before and studying history gives you the playbook.'},
+  wood:         {level:'Beginner',horizon:'5 years minimum',famousTrades:[{ticker:'TSLA',desc:'Bought heavily when consensus was bankruptcy, 20x+'},{ticker:'COIN',desc:'Early institutional position in crypto infrastructure'},{ticker:'ROKU',desc:'Streaming convergence bet, multiple years early'}],explainer:'Cathie Wood looks for companies at the convergence of disruptive technologies — AI, robotics, energy storage, genomics, and blockchain. She has a minimum 5-year time horizon and believes short-term volatility is the price you pay for long-term exponential returns. She uses Wright's Law (costs fall as production scales) to model technology adoption curves and derive 5-year price targets.'},
+  basso:        {level:'Intermediate',horizon:'Weeks to months',famousTrades:[{ticker:'SYSTEMATIC',desc:'Built TrendStat — 23+ years of consistent trend following'},{ticker:'FUTURES',desc:'Traded across 50+ futures markets simultaneously'},{ticker:'Multiple',desc:'Known for Sharpe ratio, not just returns — smooth equity curve'}],explainer:'Tom Basso is the "Mr. Serenity" of trading — he never stresses about individual trades because he trusts his system completely. He trades diversified futures markets systematically, sizing each position identically based on volatility. He believes most traders focus too much on entries and not enough on position sizing and portfolio construction.'},
+  raschke:      {level:'Advanced',horizon:'Hours to days',famousTrades:[{ticker:'MULTIPLE',desc:'Featured in Market Wizards II for consistent short-term returns'},{ticker:'S&P FUTURES',desc:'Intraday pattern trading with high win rate'},{ticker:'Holy Grail Setup',desc:'ADX trend + pullback to MA — her signature pattern'}],explainer:'Linda Bradford Raschke has been a professional trader since 1981. She studies short-term price patterns that repeat because human psychology is consistent. Her Holy Grail setup: a strong ADX trend, followed by a pullback to the 20-period moving average, followed by a resumption of the trend. She is precise about entry timing and manages risk with tight stops.'},
+  zanger:       {level:'Advanced',horizon:'Weeks to months',famousTrades:[{ticker:'QUALCOMM',desc:'1999 — 29,000% annual return from momentum pattern trading'},{ticker:'Multiple',desc:'15 years of profitable pattern trading documented'},{ticker:'CUP AND HANDLE',desc:'Signature pattern — identified hundreds of winners'}],explainer:'Dan Zanger turned $10,775 into $18 million in 18 months during the dot-com era using chart patterns. He is the master of the cup-and-handle formation, flat base, and ascending triangle. His rules: volume must expand significantly on the breakout, the handle must be shallow (less than 15% deep), and the overall market must be in an uptrend. Every position has a defined stop below the pattern.'},
+  schwartz:     {level:'Advanced',horizon:'Minutes to weeks',famousTrades:[{ticker:'S&P FUTURES',desc:'Primary vehicle — intraday and swing trading'},{ticker:'Multiple',desc:'Won U.S. Investing Championships 9 of 10 times'},{ticker:'DAILY LOSS LIMIT',desc:'Never exceeded his daily loss limit in decades of trading'}],explainer:'Marty Schwartz is "Pit Bull" — he made millions as a market maker and proprietary trader by being relentlessly defensive. He uses the 10-day EMA as his primary trend filter: if price is above it, he only looks for longs; below it, only shorts. He has a fixed daily loss limit and stops trading the moment he hits it, no matter what.'},
+  driehaus:     {level:'Intermediate',horizon:'3–12 months',famousTrades:[{ticker:'SMALL CAP MOMENTUM',desc:'Pioneer of buying earnings acceleration before Wall Street'},{ticker:'GROWTH STOCKS 1980s',desc:'Driehaus Capital averaged 30%+ annually for a decade'},{ticker:'RELATIVE STRENGTH',desc:'Built entire process around price momentum as leading indicator'}],explainer:'Richard Driehaus pioneered momentum investing — the idea that stocks moving strongly in price are moving for a reason, and that momentum persists long enough to profit from. He specifically looked for earnings acceleration: companies where the rate of earnings growth is itself accelerating. He would buy high and sell higher, believing the trend was the signal.'},
+};
+
+function getTraderMeta(id){ return TRADER_META[id]||{level:'Intermediate',horizon:'Varies',famousTrades:[],explainer:''}; }
 
 // ═══════════════════════════════════════════════════
 // LIVE PICKS ENGINE — replaces static PICKS_DATA
@@ -664,8 +913,11 @@ TICKER:[symbol]
 SIGNAL:[STRONG|WATCH|REVIEW]
 THESIS:[one sentence — what you see, in your voice]
 DETAIL:[2-4 sentences of detailed analysis in your voice. Be specific. Reference your methodology by name.]
-CATALYST:[what event or setup triggers the move]
-STOP:[educational stop level — e.g. "below the 200-day MA" or "$X support level"]
+ENTRY:[when/where to enter — e.g. "on a breakout above $X" or "on the first pullback to the 20-day MA"]
+STOP:[educational stop — e.g. "below the 200-day MA" or "below the box floor at $X"]
+TARGET:[take profit level or condition — e.g. "at $X" or "when the story hits mainstream news"]
+HOLD:[expected hold period — e.g. "3-6 months" or "until earnings catalyst" or "intraday only"]
+CATALYST:[what specific event triggers the move]
 ===PICK_END===
 
 Produce 3-5 picks. Only include stocks that genuinely fit your methodology — if something in your universe does not fit, skip it. Speak in first person as ${trader.name} throughout.
@@ -687,8 +939,11 @@ function parsePicksResponse(text, trader) {
       signal:    (str('SIGNAL') || 'WATCH').toLowerCase(),
       thesis:    str('THESIS') || '',
       detail:    str('DETAIL') || '',
-      catalyst:  str('CATALYST') || '',
+      entry:     str('ENTRY') || '',
       stop:      str('STOP') || '',
+      target1:   str('TARGET') || '',
+      hold:      str('HOLD') || '',
+      catalyst:  str('CATALYST') || '',
       traderId:  trader.id,
       traderName:trader.name,
       arch:      trader.arch,
@@ -749,8 +1004,13 @@ function renderPicks(traderId) {
       </div>
       <div class="pick-card-detail" id="pcd-${traderId}-${i}">
         <div class="pick-detail-text">${escHtml(p.detail).replace(/\n/g,'<br>')}</div>
+        ${p.entry||p.stop||p.target1||p.hold ? `<div class="pick-trade-structure">
+          <div class="pts-cell entry"><div class="pts-label">Entry</div><div class="pts-val">${escHtml(p.entry||'See detail')}</div></div>
+          <div class="pts-cell stop"><div class="pts-label">Stop</div><div class="pts-val">${escHtml(p.stop||'See detail')}</div></div>
+          <div class="pts-cell target"><div class="pts-label">Take profit</div><div class="pts-val">${escHtml(p.target1||'See detail')}</div></div>
+          <div class="pts-cell hold"><div class="pts-label">Hold period</div><div class="pts-val">${escHtml(p.hold||'Varies')}</div></div>
+        </div>` : ''}
         ${p.catalyst ? `<div style="margin-bottom:10px;"><span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;">Catalyst</span><div style="font-size:12px;color:var(--slate-light);margin-top:3px;">${escHtml(p.catalyst)}</div></div>` : ''}
-        ${p.stop ? `<div style="margin-bottom:12px;"><span style="font-family:var(--mono);font-size:9px;color:var(--danger);text-transform:uppercase;letter-spacing:0.1em;">Educational stop</span><div style="font-size:12px;color:var(--slate-light);margin-top:3px;">${escHtml(p.stop)}</div></div>` : ''}
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
           <button class="btn btn-primary btn-sm" onclick="analyzeFromPick('${escHtml(p.ticker)}','${escHtml(p.traderId)}')">
             <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
@@ -791,7 +1051,7 @@ async function scanTraderPicks(trader) {
   try {
     const universe = TRADER_UNIVERSES[trader.id] || [];
     const prompt = buildPicksPrompt(trader, universe);
-    const response = await fetch('/api/claude', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -805,6 +1065,7 @@ async function scanTraderPicks(trader) {
     const data = await response.json();
     const rawText = data.content?.[0]?.text || '';
     const parsed = parsePicksResponse(rawText, trader);
+    parsed.generatedAt = 'Generated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     PICKS_CACHE[trader.id] = parsed;
     // Mark tab as scanned
     document.querySelectorAll('.trader-tab').forEach(t => {
@@ -826,15 +1087,18 @@ async function scanTraderPicks(trader) {
   }
 }
 
-// Switch active picks trader tab
+// switchPicksTrader — base implementation (wrapped below with timestamp logic)
 function switchPicksTrader(trader) {
   activePicsTrader = trader;
   document.querySelectorAll('.trader-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.trader-tab[data-trader="${trader.id}"]`)?.classList.add('active');
+  const tab=document.querySelector(`.trader-tab[data-trader="${trader.id}"]`);
+  if(tab)tab.classList.add('active');
   if (PICKS_CACHE[trader.id]) {
     renderPicks(trader.id);
+    const ts=document.getElementById('picks-timestamp');
+    if(ts)ts.textContent=PICKS_CACHE[trader.id].generatedAt||'';
   } else {
-    document.querySelector(`.trader-tab[data-trader="${trader.id}"]`)?.classList.add('scanning');
+    if(tab)tab.classList.add('scanning');
     scanTraderPicks(trader);
   }
 }
@@ -880,7 +1144,7 @@ async function sendPickChat(traderId, pickIdx, ticker, thesis) {
   try {
     const trader = TRADERS.find(t => t.id === traderId);
     if (!trader) throw new Error('Trader not found');
-    const resp = await fetch('/api/claude', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -909,6 +1173,8 @@ const ONBOARDING_STEPS = [
 
 // STATE
 let currentUser=null,selectedTrader=null,currentTicker='',chatHistory=[],watchlistItems=[],queryCount=0,sb=null,isStreaming=false,onboardingStep=0;
+let favoriteTraderIds=JSON.parse(localStorage.getItem('ta_favorites')||'[]');
+let journalEntries=JSON.parse(localStorage.getItem('ta_journal')||'[]');
 
 // INIT
 window.addEventListener('load',async()=>{
@@ -972,14 +1238,19 @@ function buildUI(){
   const tabRow=document.getElementById('picks-trader-tabs');
   tabRow.innerHTML='';
   TRADERS.forEach(t=>{
+    const ac=archColor(t.arch);
     const btn=document.createElement('button');
     btn.className='trader-tab';
     btn.dataset.trader=t.id;
-    btn.textContent=t.name;
+    btn.style.cssText=`border-color:${ac.color}40;`;
+    btn.innerHTML=`<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${ac.color};margin-right:5px;flex-shrink:0;vertical-align:middle;"></span>${t.name}`;
     btn.title=t.arch;
     btn.onclick=()=>switchPicksTrader(t);
     tabRow.appendChild(btn);
   });
+  // Populate journal trader select
+  const js=document.getElementById('jnl-trader');
+  if(js){js.innerHTML='';TRADERS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${t.name} (${t.arch})`;js.appendChild(o);});}
   // Auto-load first trader (Camillo) when picks view is first opened
   // Actual load happens in navigate() when view-picks becomes active
   // Compare selects
@@ -1004,31 +1275,55 @@ function buildTradersGrid(traders){
   const g=document.getElementById('traders-grid-app');
   g.innerHTML='';
   traders.forEach(t=>{
+    const ac=archColor(t.arch);
+    const meta=getTraderMeta(t.id);
+    const isFav=favoriteTraderIds.includes(t.id);
     const c=document.createElement('div');
     c.className='trader-card-app'+(selectedTrader?.id===t.id?' selected':'');
-    c.innerHTML=`<div class="tca-arch">${t.arch}</div><div class="tca-name">${t.name}</div><div class="tca-doc">${t.doc}</div>`;
+    c.style.borderTopColor=ac.color;
+    c.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="arch-pill" style="background:${ac.bg};color:${ac.color};border:1px solid ${ac.color}40;">
+          <div class="arch-dot-sm" style="background:${ac.color};"></div>${t.arch}
+        </div>
+        <div style="display:flex;gap:4px;">
+          <span class="${meta.level==='Beginner'?'level-beginner':meta.level==='Advanced'?'level-advanced':'level-intermediate'} style-guide-level" style="padding:2px 6px;border-radius:99px;font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:0.04em;">${meta.level}</span>
+          <button class="fav-btn${isFav?' active':''}" onclick="event.stopPropagation();toggleFavorite('${t.id}')" title="${isFav?'Remove from favorites':'Add to favorites'}">
+            <svg viewBox="0 0 24 24" fill="${isFav?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="tca-name">${t.name}</div>
+      <div class="tca-doc">${t.doc}</div>
+      <button onclick="event.stopPropagation();openStyleGuide('${t.id}')" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;font-size:10px;color:var(--slate);cursor:pointer;transition:all 0.15s;font-family:var(--mono);" onmouseover="this.style.color='var(--emerald)';this.style.borderColor='var(--emerald-dim)';" onmouseout="this.style.color='var(--slate)';this.style.borderColor='var(--border)';">What is ${t.arch}? →</button>`;
     c.onclick=()=>selectTrader(t);
     g.appendChild(c);
   });
 }
 
 // NAVIGATION
-const PAGE_TITLES={dashboard:'Dashboard',greats:'The 25 Greats',engine:'AI Engine',picks:'Daily Picks',watchlist:'Watchlist',compare:'Compare',settings:'Settings'};
+const PAGE_TITLES={dashboard:'Dashboard',greats:'The 25 Greats',engine:'AI Engine',picks:'Daily Picks',watchlist:'Watchlist',compare:'Compare',journal:'Trade Journal',favorites:'My Favorites',settings:'Settings'};
 function navigate(viewId,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+viewId).classList.add('active');
+  const viewEl=document.getElementById('view-'+viewId);
+  if(!viewEl)return;
+  viewEl.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
+  else{const nb=document.querySelector('[data-view="'+viewId+'"]');if(nb)nb.classList.add('active');}
   document.getElementById('topbar-title').textContent=PAGE_TITLES[viewId]||'';
   if(viewId==='watchlist')renderWatchlist();
+  if(viewId==='journal')renderJournal();
+  if(viewId==='favorites')renderFavorites();
+  if(viewId==='engine'&&!selectedTrader){
+    // Reset engine to empty state instead of showing stale trader
+    document.getElementById('chat-window').innerHTML='<div class="chat-empty" id="chat-empty-state"><div class="chat-empty-icon">⚡</div><h3>Ready to analyze</h3><p>Select a trader from The 25 Greats, then type a question or enter a ticker above.</p></div>';
+    document.getElementById('selected-trader-card').innerHTML='<div class="chat-empty" style="padding:20px;"><div class="chat-empty-icon">⚡</div><h3 style="font-size:14px;margin-bottom:6px;">No trader selected</h3><p style="font-size:12px;">Go to The 25 Greats and pick a trader.</p><button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="navigate('greats',document.querySelector('[data-view=greats]'))">Pick a trader</button></div>';
+    document.getElementById('market-data-card').style.display='none';
+  }
   if(viewId==='picks'){
-    // Auto-load first trader if nothing has been scanned yet
-    if(!activePicsTrader){
-      const firstTrader=TRADERS[0];
-      switchPicksTrader(firstTrader);
-    } else {
-      renderPicks(activePicsTrader.id);
-    }
+    if(!activePicsTrader){switchPicksTrader(TRADERS[0]);}
+    else{renderPicks(activePicsTrader.id);}
   }
 }
 
@@ -1072,7 +1367,7 @@ async function sendMessage(){
   document.getElementById('chat-send-btn').disabled=true;
   try{
     const systemPrompt=`${selectedTrader.persona}\n\nKey methodology rules:\n${selectedTrader.rules.map((r,i)=>`${i+1}. ${r}`).join('\n')}${currentTicker?`\n\nThe user is currently analyzing the ticker: ${currentTicker}`:''}`;
-    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages:chatHistory})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages:chatHistory})});
     if(!res.ok)throw new Error(`API ${res.status}`);
     const data=await res.json();
     const aiText=data.content?.[0]?.text||'No response received.';
@@ -1098,7 +1393,10 @@ function appendMsg(role,text){
   el.className='msg msg-'+role;
   const formatted=escHtml(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'</p><p style="margin-top:8px;">').replace(/\n/g,'<br>');
   if(role==='user'){el.innerHTML=`<div class="msg-bubble">${escHtml(text)}</div><div class="msg-meta">${timeNow()}</div>`;}
-  else{el.innerHTML=`<div class="msg-bubble"><p>${formatted}</p></div><div class="msg-meta"><span class="msg-trader-tag">${selectedTrader?.name}</span>${timeNow()}${currentTicker?`<button class="add-watchlist-btn" onclick="openAddWatchlistModal('${currentTicker}','${selectedTrader?.id}')">+ Watchlist</button>`:''}</div>`;}
+  else{
+    const safeText=text.replace(/'/g,"\\'").replace(/\n/g,' ');
+    el.innerHTML=`<div class="msg-bubble"><p>${formatted}</p></div><div class="msg-meta"><span class="msg-trader-tag">${selectedTrader?.name}</span>${timeNow()}<button class="msg-copy-btn" onclick="copyMessage('${safeText}')">Copy</button>${currentTicker?`<button class="add-watchlist-btn" onclick="openAddWatchlistModal('${currentTicker}','${selectedTrader?.id}')">+ Watchlist</button>`:''}</div>`;
+  }
   cw.appendChild(el);
   cw.scrollTop=cw.scrollHeight;
 }
@@ -1240,7 +1538,7 @@ async function runCompare(){
 
 async function runSingleCompare(ticker,trader){
   try{
-    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:`${trader.persona} Keep your response to 3-4 focused paragraphs. This is educational methodology analysis only.`,messages:[{role:'user',content:`Analyze ${ticker} through your methodology. Be specific about whether it fits your framework and why.`}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:`${trader.persona} Keep your response to 3-4 focused paragraphs. This is educational methodology analysis only.`,messages:[{role:'user',content:`Analyze ${ticker} through your methodology. Be specific about whether it fits your framework and why.`}]})});
     const data=await res.json();
     const text=data.content?.[0]?.text||'Analysis unavailable.';
     const formatted=escHtml(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'</p><p style="margin-top:8px;">').replace(/\n/g,'<br>');
@@ -1281,6 +1579,261 @@ function nextOnboarding(){
 }
 function dismissOnboarding(){document.getElementById('onboarding-overlay').classList.remove('show');localStorage.setItem('ta_onboarded','1');}
 document.getElementById('onboarding-overlay').addEventListener('click',function(e){if(e.target===this)dismissOnboarding();});
+
+// ═══════════════════════════════════════════════════
+// FAVORITES
+// ═══════════════════════════════════════════════════
+function toggleFavorite(traderId){
+  const idx=favoriteTraderIds.indexOf(traderId);
+  if(idx>-1){favoriteTraderIds.splice(idx,1);}
+  else{
+    if(favoriteTraderIds.length>=5){showToast('You can only favorite up to 5 traders','error');return;}
+    favoriteTraderIds.push(traderId);
+  }
+  localStorage.setItem('ta_favorites',JSON.stringify(favoriteTraderIds));
+  // Update fav buttons on the greats grid
+  document.querySelectorAll('.fav-btn').forEach(btn=>{
+    const card=btn.closest('.trader-card-app');
+    if(!card)return;
+    const nameEl=card.querySelector('.tca-name');
+    const t=TRADERS.find(x=>x.name===nameEl?.textContent);
+    if(!t)return;
+    const active=favoriteTraderIds.includes(t.id);
+    btn.classList.toggle('active',active);
+    btn.querySelector('svg').setAttribute('fill',active?'currentColor':'none');
+    btn.title=active?'Remove from favorites':'Add to favorites';
+  });
+  const count=favoriteTraderIds.length;
+  showToast(idx>-1?'Removed from favorites':`${count}/5 favorites selected`,'success');
+  if(count>=5)showToast('Tip: go to My Favorites to see your daily watchlist','info');
+}
+
+function renderFavorites(){
+  const grid=document.getElementById('favorites-grid');
+  const picksEl=document.getElementById('favorites-picks');
+  const banner=document.getElementById('fav-banner');
+  if(!favoriteTraderIds.length){
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">⭐</div><h3>No favorites yet</h3><p>Go to The 25 Greats and star up to 5 traders to build your personal daily watchlist.</p><button class="btn btn-primary" onclick="navigate('greats',document.querySelector('[data-view=greats]'))">Browse the 25 Greats</button></div>`;
+    banner.style.display='none';
+    picksEl.innerHTML='';
+    return;
+  }
+  banner.style.display='flex';
+  banner.textContent=`Your ${favoriteTraderIds.length}/5 favorite traders — picks update when you refresh each tab`;
+  grid.innerHTML='';
+  favoriteTraderIds.forEach(id=>{
+    const t=TRADERS.find(x=>x.id===id);
+    if(!t)return;
+    const ac=archColor(t.arch);
+    const meta=getTraderMeta(t.id);
+    const cached=PICKS_CACHE[id];
+    const div=document.createElement('div');
+    div.className='card';
+    div.style.borderTopColor=ac.color;
+    div.style.borderTopWidth='2px';
+    div.innerHTML=`
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="arch-dot-sm" style="background:${ac.color};width:8px;height:8px;border-radius:50%;flex-shrink:0;"></div>
+          <span class="card-title">${escHtml(t.name)}</span>
+        </div>
+        <span style="font-family:var(--mono);font-size:9px;color:${ac.color};">${escHtml(t.arch)}</span>
+      </div>
+      <div class="card-body" style="padding:12px 16px;">
+        ${cached?cached.picks.slice(0,3).map(p=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--emerald);width:48px;flex-shrink:0;">${escHtml(p.ticker)}</span>
+            <span style="font-size:11px;color:var(--slate-light);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(p.thesis)}</span>
+            <span class="tag tag-${p.signal}">${p.signal.toUpperCase()}</span>
+          </div>`).join('')
+          :`<div style="text-align:center;padding:16px;color:var(--slate);font-size:12px;"><button class="btn btn-outline btn-sm" onclick="switchPicksTrader(TRADERS.find(t=>t.id==='${id}'));navigate('picks',document.querySelector('[data-view=picks]'));">Load ${escHtml(t.name)}'s picks</button></div>`}
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// STYLE GUIDE MODAL
+// ═══════════════════════════════════════════════════
+function openStyleGuide(traderId){
+  const t=TRADERS.find(x=>x.id===traderId);
+  if(!t)return;
+  const meta=getTraderMeta(traderId);
+  const ac=archColor(t.arch);
+  document.getElementById('sg-arch-dot').style.background=ac.color;
+  document.getElementById('sg-trader-name').textContent=t.name;
+  document.getElementById('sg-arch-name').style.color=ac.color;
+  document.getElementById('sg-arch-name').textContent=t.arch;
+  const levelEl=document.getElementById('sg-level');
+  levelEl.textContent=meta.level;
+  levelEl.className='style-guide-level level-'+meta.level.toLowerCase();
+  document.getElementById('sg-horizon').textContent='Hold: '+meta.horizon;
+  document.getElementById('sg-explainer').textContent=meta.explainer;
+  const rulesEl=document.getElementById('sg-rules');
+  rulesEl.innerHTML=t.rules.map(r=>`<li>${escHtml(r)}</li>`).join('');
+  const famousEl=document.getElementById('sg-famous');
+  famousEl.innerHTML=meta.famousTrades.map(ft=>`<div class="style-guide-trade"><div class="style-guide-trade-ticker">${escHtml(ft.ticker)}</div><div class="style-guide-trade-desc">${escHtml(ft.desc)}</div></div>`).join('');
+  document.getElementById('style-guide-overlay').classList.add('show');
+}
+function closeStyleGuide(e){
+  if(e&&e.target!==document.getElementById('style-guide-overlay'))return;
+  document.getElementById('style-guide-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════
+// REFRESH PICKS
+// ═══════════════════════════════════════════════════
+function refreshActivePicks(){
+  if(!activePicsTrader||picksIsScanning)return;
+  delete PICKS_CACHE[activePicsTrader.id];
+  document.querySelector(`.trader-tab[data-trader="${activePicsTrader.id}"]`)?.classList.remove('scanned');
+  document.getElementById('picks-timestamp').textContent='';
+  switchPicksTrader(activePicsTrader);
+}
+
+// ═══════════════════════════════════════════════════
+// TRADE JOURNAL
+// ═══════════════════════════════════════════════════
+function logTrade(){
+  const ticker=(document.getElementById('jnl-ticker').value||'').trim().toUpperCase();
+  const traderId=document.getElementById('jnl-trader').value;
+  const entryPrice=parseFloat(document.getElementById('jnl-entry-price').value)||0;
+  const entryDate=document.getElementById('jnl-entry-date').value;
+  const exitPrice=parseFloat(document.getElementById('jnl-exit-price').value)||null;
+  const exitDate=document.getElementById('jnl-exit-date').value||null;
+  const size=parseFloat(document.getElementById('jnl-size').value)||0;
+  const outcome=document.getElementById('jnl-outcome').value;
+  const thesis=document.getElementById('jnl-thesis').value.trim();
+  if(!ticker||!traderId||!entryPrice||!entryDate){showToast('Please fill in ticker, trader, entry price, and entry date','error');return;}
+  const trader=TRADERS.find(t=>t.id===traderId);
+  let pnlPct=null,pnlDollar=null;
+  if(exitPrice&&entryPrice){
+    pnlPct=((exitPrice-entryPrice)/entryPrice*100).toFixed(2);
+    pnlDollar=size?(exitPrice-entryPrice)/entryPrice*size:null;
+  }
+  const entry={
+    id:Date.now().toString(),
+    ticker,traderId,traderName:trader?.name||traderId,
+    entryPrice,entryDate,exitPrice,exitDate,size,outcome,thesis,
+    pnlPct,pnlDollar,
+    aiAnalysis:null,
+    createdAt:new Date().toISOString()
+  };
+  journalEntries.unshift(entry);
+  localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
+  // Clear form
+  ['jnl-ticker','jnl-entry-price','jnl-exit-price','jnl-size','jnl-thesis'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('jnl-entry-date').value='';
+  document.getElementById('jnl-exit-date').value='';
+  document.getElementById('jnl-outcome').value='open';
+  renderJournal();
+  showToast(`${ticker} logged to journal`,'success');
+}
+
+function renderJournal(){
+  const c=document.getElementById('journal-entries');
+  if(!journalEntries.length){
+    c.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><h3>No trades logged yet</h3><p>Log your first trade above to start building your post-mortem history.</p></div>`;
+    return;
+  }
+  c.innerHTML='<div class="card-header" style="background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;margin-bottom:0;"><span class="card-title">Trade log</span></div>';
+  const wrap=document.createElement('div');
+  wrap.style.cssText='border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);overflow:hidden;';
+  journalEntries.forEach((e,i)=>{
+    const pnlClass=e.outcome==='win'?'win':e.outcome==='loss'?'loss':'open';
+    const pnlText=e.pnlPct?`${parseFloat(e.pnlPct)>=0?'+':''}${e.pnlPct}%`:(e.outcome==='open'?'Open':'—');
+    const dollarText=e.pnlDollar?` ($${Math.abs(e.pnlDollar).toFixed(0)})`:'';
+    const div=document.createElement('div');
+    div.className='journal-entry';
+    div.style.borderRadius='0';
+    div.style.marginBottom='0';
+    div.style.borderLeft='none';
+    div.style.borderRight='none';
+    div.style.borderTop=i>0?'1px solid var(--border)':'none';
+    div.innerHTML=`
+      <div class="journal-entry-header" onclick="toggleJournalEntry('${e.id}')">
+        <div class="journal-entry-ticker">${escHtml(e.ticker)}</div>
+        <div class="journal-entry-trader">${escHtml(e.traderName)}</div>
+        <div class="journal-entry-date">${e.entryDate}${e.exitDate?' → '+e.exitDate:' → now'}</div>
+        <div class="journal-entry-pnl ${pnlClass}">${pnlText}${dollarText}</div>
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();postMortemTrade('${e.id}')">
+            ${e.aiAnalysis?'Re-analyze':'AI post-mortem'}
+          </button>
+          <button class="btn btn-sm" style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(229,92,92,0.3);" onclick="event.stopPropagation();deleteJournalEntry('${e.id}')">✕</button>
+        </div>
+      </div>
+      <div class="journal-analysis" id="je-${e.id}">
+        ${e.thesis?`<div style="margin-bottom:12px;"><span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;">Original thesis</span><div style="font-size:13px;color:var(--slate-light);margin-top:4px;line-height:1.6;">${escHtml(e.thesis)}</div></div>`:''}
+        ${e.aiAnalysis?`<div><span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;">${escHtml(e.traderName)} post-mortem</span><div class="journal-ai-response" style="margin-top:6px;">${e.aiAnalysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/
+/g,'<br>')}</div></div>`:'<div style="color:var(--slate);font-size:12px;">Click AI post-mortem to analyze this trade through your trader's lens.</div>'}
+      </div>`;
+    wrap.appendChild(div);
+  });
+  c.appendChild(wrap);
+}
+
+function toggleJournalEntry(id){
+  const el=document.getElementById('je-'+id);
+  if(el)el.classList.toggle('open');
+}
+
+function deleteJournalEntry(id){
+  journalEntries=journalEntries.filter(e=>e.id!==id);
+  localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
+  renderJournal();
+  showToast('Trade removed','info');
+}
+
+async function postMortemTrade(id){
+  const entry=journalEntries.find(e=>e.id===id);
+  if(!entry)return;
+  const trader=TRADERS.find(t=>t.id===entry.traderId);
+  if(!trader)return;
+  showToast(`${trader.name} analyzing your ${entry.ticker} trade...`,'info');
+  // Open the accordion
+  const el=document.getElementById('je-'+id);
+  if(el){el.classList.add('open');el.innerHTML='<div style="color:var(--slate);font-size:12px;padding:4px 0;">Analyzing...</div>';}
+  try{
+    const outcome=entry.pnlPct?`${parseFloat(entry.pnlPct)>=0?'profit of':'loss of'} ${Math.abs(entry.pnlPct)}%`:entry.outcome;
+    const resp=await fetch('/api/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:800,
+        system:`${trader.persona}
+
+You are giving an honest, educational post-mortem of a real trade the user made. Speak as ${trader.name}. Be direct. If the user did something right, say so. If they made a mistake according to your methodology, explain what it was and what should have been done differently. Educational analysis only.`,
+        messages:[{role:'user',content:`Post-mortem my ${entry.ticker} trade:
+- Entry: $${entry.entryPrice} on ${entry.entryDate}
+- Exit: ${entry.exitPrice?'$'+entry.exitPrice+' on '+entry.exitDate:'Still open'}
+- Result: ${outcome}
+- My original thesis: "${entry.thesis||'Not recorded'}"
+
+Was this trade consistent with your methodology? What did I do right? What did I do wrong? What should I look for next time?`}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'Analysis unavailable.';
+    entry.aiAnalysis=text;
+    journalEntries=journalEntries.map(e=>e.id===id?entry:e);
+    localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
+    if(el){el.innerHTML=`<div style="margin-bottom:12px;"><span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;">${escHtml(entry.traderName)} post-mortem</span><div class="journal-ai-response" style="margin-top:6px;">${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/
+/g,'<br>')}</div></div>`;}
+    queryCount++;document.getElementById('stat-queries').textContent=queryCount;
+  }catch(err){
+    if(el)el.innerHTML=`<div style="color:var(--danger);font-size:12px;">Analysis failed: ${escHtml(err.message)}</div>`;
+    showToast('Post-mortem failed','error');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// COPY MESSAGE
+// ═══════════════════════════════════════════════════
+function copyMessage(text){
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied to clipboard','success')).catch(()=>showToast('Copy failed','error'));
+}
 
 // AUTH
 async function signOut(){if(sb)await sb.auth.signOut();window.location.href='login.html';}
