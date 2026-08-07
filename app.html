@@ -7,8 +7,10 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap&font-display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
 <style>
 /* ═══════════════════════════════════════════
    TRADER ATLAS APP — Design System
@@ -31,6 +33,14 @@
 }
 html,body{height:100%;overflow:hidden;}
 body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webkit-font-smoothing:antialiased;display:flex;}
+/* ── INSTANT LOADING SHELL ── shown before JS hydrates */
+#app-loading{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:2000;transition:opacity 0.3s;}
+#app-loading.hidden{opacity:0;pointer-events:none;}
+.app-loading-logo{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--white);}
+.app-loading-logo span{color:var(--emerald);}
+.app-loading-bar{width:160px;height:2px;background:var(--navy-light);border-radius:99px;overflow:hidden;}
+.app-loading-progress{height:100%;background:var(--emerald);border-radius:99px;animation:loadProgress 1.2s ease-out forwards;}
+@keyframes loadProgress{from{width:0%}to{width:85%}}
 
 /* SIDEBAR */
 #sidebar{width:var(--sidebar);height:100vh;background:var(--navy-mid);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:100;}
@@ -410,6 +420,12 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 </head>
 <body>
 
+<!-- INSTANT LOADING SHELL — visible before JS fires -->
+<div id="app-loading">
+  <div class="app-loading-logo">Trader <span>Atlas</span></div>
+  <div class="app-loading-bar"><div class="app-loading-progress"></div></div>
+</div>
+
 <!-- SIDEBAR -->
 <aside id="sidebar">
   <a href="#" class="sidebar-logo">
@@ -768,9 +784,8 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 <script>
 // CONFIG
-const SUPABASE_URL = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV'; 
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 const DEMO_MODE         = true;
 
 // TRADER DATA
@@ -901,57 +916,82 @@ let picksIsScanning = false;
 function buildPicksPrompt(trader, universe) {
   return `${trader.persona}
 
-You are doing your DAILY SCAN. Today you are scanning this universe of stocks to find your best opportunities:
-${universe.join(', ')}
+DAILY SCAN TASK: You are scanning your stock universe to surface your best opportunities right now.
 
-Your job: Think out loud as ${trader.name}. Scan this universe through your exact methodology. Surface the 3-5 stocks that best fit your framework RIGHT NOW based on current market conditions.
+Universe to scan: ${universe.join(', ')}
 
-For EACH pick, you MUST produce a structured block using EXACTLY this format (no deviation):
+Scan through your exact methodology. Surface 3-5 stocks that best fit your framework. For any stock that does not fit, skip it without comment.
+
+For EACH pick, output a block in this EXACT format. Do not add markdown, code fences, or extra formatting around these blocks:
 
 ===PICK_START===
-TICKER:[symbol]
-SIGNAL:[STRONG|WATCH|REVIEW]
-THESIS:[one sentence — what you see, in your voice]
-DETAIL:[2-4 sentences of detailed analysis in your voice. Be specific. Reference your methodology by name.]
-ENTRY:[when/where to enter — e.g. "on a breakout above $X" or "on the first pullback to the 20-day MA"]
-STOP:[educational stop — e.g. "below the 200-day MA" or "below the box floor at $X"]
-TARGET:[take profit level or condition — e.g. "at $X" or "when the story hits mainstream news"]
-HOLD:[expected hold period — e.g. "3-6 months" or "until earnings catalyst" or "intraday only"]
-CATALYST:[what specific event triggers the move]
+TICKER: [symbol only, e.g. NVDA]
+SIGNAL: [one of: STRONG, WATCH, or REVIEW]
+THESIS: [one sentence in your voice explaining the opportunity]
+DETAIL: [2-3 sentences of specific analysis using your methodology]
+ENTRY: [specific entry condition or price level]
+STOP: [specific stop loss condition or price level]
+TARGET: [take profit condition or price level]
+HOLD: [expected hold period, e.g. 3-6 months, intraday, until earnings]
+CATALYST: [the specific event or trigger that moves this stock]
 ===PICK_END===
 
-Produce 3-5 picks. Only include stocks that genuinely fit your methodology — if something in your universe does not fit, skip it. Speak in first person as ${trader.name} throughout.
+Repeat the block above for each pick. After your last block, write one sentence about current market conditions from your perspective.
 
-After all picks, add one sentence: your overall read on the current market environment from your methodology's perspective.
-
-Educational analysis only. Not investment advice.`;
+This is educational methodology content only, not investment advice.`;
 }
 
-// Parse the structured pick blocks from AI response
+// Parse the structured pick blocks — tolerant of Claude formatting variations
 function parsePicksResponse(text, trader) {
   const blocks = [];
-  const matches = text.matchAll(/===PICK_START===([\s\S]*?)===PICK_END===/g);
+
+  // Strip any markdown code fences Claude might have added
+  const cleaned = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '');
+
+  // Match blocks — fuzzy on delimiter spacing/newlines
+  const matches = cleaned.matchAll(/===\s*PICK_START\s*===([\s\S]*?)===\s*PICK_END\s*===/gi);
+
   for (const m of matches) {
     const block = m[1];
-    const str = k => { const r = block.match(new RegExp(`^${k}:(.+)$`,'m')); return r ? r[1].trim() : null; };
-    const pick = {
-      ticker:    str('TICKER'),
-      signal:    (str('SIGNAL') || 'WATCH').toLowerCase(),
-      thesis:    str('THESIS') || '',
-      detail:    str('DETAIL') || '',
-      entry:     str('ENTRY') || '',
-      stop:      str('STOP') || '',
-      target1:   str('TARGET') || '',
-      hold:      str('HOLD') || '',
-      catalyst:  str('CATALYST') || '',
-      traderId:  trader.id,
-      traderName:trader.name,
-      arch:      trader.arch,
+
+    // Extract field — handles both "KEY: value" and "KEY:value", and multiline values
+    // by capturing everything up to the next KEY: or end of block
+    const str = (k) => {
+      const r = block.match(new RegExp(`${k}:\\s*([^\\n]+)`, 'i'));
+      return r ? r[1].trim() : null;
     };
-    if (pick.ticker) blocks.push(pick);
+
+    const ticker = str('TICKER');
+    if (!ticker) continue; // skip malformed blocks
+
+    const pick = {
+      ticker:     ticker.replace(/[^A-Z0-9.\-]/gi, '').toUpperCase(),
+      signal:     (str('SIGNAL') || 'WATCH').replace(/[^a-zA-Z]/g,'').toLowerCase(),
+      thesis:     str('THESIS') || '',
+      detail:     str('DETAIL') || '',
+      entry:      str('ENTRY') || '',
+      stop:       str('STOP') || '',
+      target1:    str('TARGET') || '',
+      hold:       str('HOLD') || '',
+      catalyst:   str('CATALYST') || '',
+      traderId:   trader.id,
+      traderName: trader.name,
+      arch:       trader.arch,
+    };
+
+    // Normalise signal to one of three valid values
+    if (!['strong','watch','review'].includes(pick.signal)) pick.signal = 'watch';
+
+    blocks.push(pick);
   }
-  // Extract the closing market comment (after last ===PICK_END===)
-  const marketComment = text.split('===PICK_END===').pop()?.trim().replace(/\n+/g,' ') || '';
+
+  // If parser still got nothing, try a fallback — Claude sometimes skips delimiters entirely
+  // and just outputs numbered picks. Log for debugging.
+  if (blocks.length === 0) {
+    console.warn('parsePicksResponse: no blocks found for', trader.name, '— raw text length:', text.length);
+  }
+
+  const marketComment = cleaned.split(/===\s*PICK_END\s*===/i).pop()?.trim().replace(/\n+/g,' ') || '';
   return { picks: blocks, marketComment };
 }
 
@@ -976,7 +1016,21 @@ function renderPicks(traderId) {
   if (!cached) { showPicksSkeleton(); return; }
   const { picks, marketComment } = cached;
   if (!picks.length) {
-    list.innerHTML = `<div class="picks-empty"><div class="picks-empty-icon">🔍</div><h3>No picks surfaced</h3><p>The methodology scan ran but no stocks in this universe met the criteria right now.</p></div>`;
+    // Fallback: show the raw AI response so the user still gets value
+    const rawText = PICKS_CACHE[traderId]?.rawText || '';
+    if (rawText) {
+      list.innerHTML = `
+        <div class="disclaimer-banner">Parser could not extract structured picks — showing raw analysis below.</div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">${escHtml(TRADERS.find(t=>t.id===traderId)?.name||traderId)} — Analysis</span>
+            <button class="btn btn-outline btn-sm" onclick="refreshActivePicks()">Refresh</button>
+          </div>
+          <div class="card-body" style="font-size:13px;color:var(--slate-light);line-height:1.75;white-space:pre-wrap;">${escHtml(rawText)}</div>
+        </div>`;
+    } else {
+      list.innerHTML = `<div class="picks-empty"><div class="picks-empty-icon">🔍</div><h3>No picks surfaced</h3><p>The scan ran but returned no structured picks. Try refreshing.</p><button class="btn btn-outline" onclick="refreshActivePicks()">Refresh</button></div>`;
+    }
     return;
   }
   list.innerHTML = '';
@@ -1066,6 +1120,7 @@ async function scanTraderPicks(trader) {
     const rawText = data.content?.[0]?.text || '';
     const parsed = parsePicksResponse(rawText, trader);
     parsed.generatedAt = 'Generated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    parsed.rawText = rawText;
     PICKS_CACHE[trader.id] = parsed;
     // Mark tab as scanned
     document.querySelectorAll('.trader-tab').forEach(t => {
@@ -1177,30 +1232,99 @@ let favoriteTraderIds=JSON.parse(localStorage.getItem('ta_favorites')||'[]');
 let journalEntries=JSON.parse(localStorage.getItem('ta_journal')||'[]');
 
 // INIT
-window.addEventListener('load',async()=>{
-  if(!window.supabase){showToast('Could not connect to auth service.','error');return;}
-  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
-  await loadUser(session.user);
+// ── FAST INIT — paint shell immediately, hydrate from network in parallel ──
+// Use DOMContentLoaded not 'load' — fires before images/fonts settle
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Paint the UI shell instantly from whatever we know without a network call
   buildUI();
   setupKeyboard();
-  loadWatchlist();
-  if(!localStorage.getItem('ta_onboarded'))document.getElementById('onboarding-overlay').classList.add('show');
+
+  // 2. Restore user from localStorage cache for instant greeting
+  const cachedUser = localStorage.getItem('ta_user_cache');
+  if (cachedUser) {
+    try {
+      const u = JSON.parse(cachedUser);
+      currentUser = u;
+      const initials = u.display_name.slice(0,2).toUpperCase();
+      document.getElementById('user-avatar').textContent = initials;
+      document.getElementById('user-name').textContent = u.display_name;
+      document.getElementById('user-tier').textContent = (u.tier||'elite').toUpperCase();
+      document.getElementById('settings-email').textContent = u.email;
+      document.getElementById('settings-name').value = u.display_name;
+      const h = new Date().getHours();
+      const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+      document.getElementById('dash-greeting').textContent = `${g}, ${u.display_name}.`;
+    } catch(e) { /* cache corrupt, ignore */ }
+  }
+
+  // 3. Restore watchlist count from cache
+  const cachedWL = localStorage.getItem('ta_watchlist_cache');
+  if (cachedWL) {
+    try {
+      watchlistItems = JSON.parse(cachedWL);
+      document.getElementById('stat-watchlist').textContent = watchlistItems.length;
+    } catch(e) {}
+  }
+
+  // 4. Hide loading shell
+  const loader = document.getElementById('app-loading');
+  if (loader) { loader.classList.add('hidden'); setTimeout(()=>loader.remove(), 350); }
+
+  // 5. Show onboarding if first time
+  if (!localStorage.getItem('ta_onboarded')) {
+    document.getElementById('onboarding-overlay').classList.add('show');
+  }
+
+  // 6. Hydrate from network asynchronously — doesn't block UI
+  hydrateFromNetwork();
 });
 
-async function loadUser(authUser){
-  const{data:profile}=await sb.from('profiles').select('*').eq('id',authUser.id).single();
-  currentUser={id:authUser.id,email:authUser.email,display_name:profile?.display_name||authUser.email.split('@')[0],tier:DEMO_MODE?'elite':(profile?.tier||'starter')};
-  const initials=currentUser.display_name.slice(0,2).toUpperCase();
-  document.getElementById('user-avatar').textContent=initials;
-  document.getElementById('user-name').textContent=currentUser.display_name;
-  document.getElementById('user-tier').textContent=currentUser.tier.toUpperCase();
-  document.getElementById('settings-email').textContent=currentUser.email;
-  document.getElementById('settings-name').value=currentUser.display_name;
-  const h=new Date().getHours();
-  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  document.getElementById('dash-greeting').textContent=`${g}, ${currentUser.display_name}.`;
+async function hydrateFromNetwork() {
+  // Wait for Supabase to load (it's async now)
+  let attempts = 0;
+  while (!window.supabase && attempts < 20) {
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+  if (!window.supabase) { showToast('Auth service unavailable — refresh to retry', 'error'); return; }
+
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  // Run profile fetch and watchlist fetch in parallel
+  const [profileResult, watchlistResult] = await Promise.all([
+    sb.from('profiles').select('*').eq('id', session.user.id).single(),
+    sb.from('watchlists').select('*').eq('user_id', session.user.id).order('created_at', {ascending:false})
+  ]);
+
+  // Update user from fresh data
+  const profile = profileResult.data;
+  currentUser = {
+    id: session.user.id,
+    email: session.user.email,
+    display_name: profile?.display_name || session.user.email.split('@')[0],
+    tier: DEMO_MODE ? 'elite' : (profile?.tier || 'starter'),
+  };
+
+  // Cache for next load
+  localStorage.setItem('ta_user_cache', JSON.stringify(currentUser));
+
+  // Update UI with fresh data
+  const initials = currentUser.display_name.slice(0,2).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name').textContent = currentUser.display_name;
+  document.getElementById('user-tier').textContent = currentUser.tier.toUpperCase();
+  document.getElementById('settings-email').textContent = currentUser.email;
+  document.getElementById('settings-name').value = currentUser.display_name;
+  const h = new Date().getHours();
+  const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('dash-greeting').textContent = `${g}, ${currentUser.display_name}.`;
+
+  // Update watchlist from fresh data
+  watchlistItems = watchlistResult.data || [];
+  localStorage.setItem('ta_watchlist_cache', JSON.stringify(watchlistItems));
+  document.getElementById('stat-watchlist').textContent = watchlistItems.length;
 }
 
 function buildUI(){
@@ -1461,11 +1585,21 @@ function analyzeFromPick(ticker,traderId){
 }
 
 // WATCHLIST
-async function loadWatchlist(){
-  if(!sb||!currentUser)return;
-  const{data}=await sb.from('watchlists').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  watchlistItems=data||[];
+async function saveWatchlistItem(){
+  const ticker=document.getElementById('modal-ticker').value.trim().toUpperCase();
+  const traderId=document.getElementById('modal-trader-select').value;
+  const notes=document.getElementById('modal-notes').value.trim();
+  if(!ticker||!traderId){showToast('Please fill in ticker and trader','error');return;}
+  const trader=TRADERS.find(t=>t.id===traderId);
+  if(!sb||!currentUser){showToast('Not connected','error');return;}
+  const{data,error}=await sb.from('watchlists').insert({user_id:currentUser.id,ticker,trader_id:traderId,trader_name:trader?.name||traderId,notes}).select().single();
+  if(error){showToast('Could not save to watchlist','error');return;}
+  watchlistItems.unshift(data);
+  localStorage.setItem('ta_watchlist_cache',JSON.stringify(watchlistItems));
   document.getElementById('stat-watchlist').textContent=watchlistItems.length;
+  closeModal();
+  showToast(`${ticker} added to watchlist`,'success');
+  renderWatchlist();
 }
 
 function renderWatchlist(){
@@ -1485,27 +1619,12 @@ function openAddWatchlistModal(ticker='',traderId=''){
   if(!ticker)document.getElementById('modal-ticker').focus();
 }
 
-async function saveWatchlistItem(){
-  const ticker=document.getElementById('modal-ticker').value.trim().toUpperCase();
-  const traderId=document.getElementById('modal-trader-select').value;
-  const notes=document.getElementById('modal-notes').value.trim();
-  if(!ticker||!traderId){showToast('Please fill in ticker and trader','error');return;}
-  const trader=TRADERS.find(t=>t.id===traderId);
-  if(!sb||!currentUser){showToast('Not connected','error');return;}
-  const{data,error}=await sb.from('watchlists').insert({user_id:currentUser.id,ticker,trader_id:traderId,trader_name:trader?.name||traderId,notes}).select().single();
-  if(error){showToast('Could not save to watchlist','error');return;}
-  watchlistItems.unshift(data);
-  document.getElementById('stat-watchlist').textContent=watchlistItems.length;
-  closeModal();
-  showToast(`${ticker} added to watchlist`,'success');
-  renderWatchlist();
-}
-
 async function removeWatchlistItem(id){
   if(!sb)return;
   const{error}=await sb.from('watchlists').delete().eq('id',id);
   if(error){showToast('Could not remove item','error');return;}
   watchlistItems=watchlistItems.filter(i=>i.id!==id);
+  localStorage.setItem('ta_watchlist_cache',JSON.stringify(watchlistItems));
   document.getElementById('stat-watchlist').textContent=watchlistItems.length;
   renderWatchlist();
   showToast('Removed from watchlist','info');
