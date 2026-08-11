@@ -869,6 +869,9 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
         <span class="tag tag-elite">ELITE</span>
       </div>
       <div class="disclaimer-banner">Educational post-mortem only. Not investment advice.</div>
+      <div style="background:var(--emerald-bg);border:1px solid var(--emerald-dim);border-radius:var(--radius);padding:8px 14px;margin-bottom:14px;font-family:var(--mono);font-size:9px;color:var(--emerald);letter-spacing:0.04em;display:flex;align-items:center;gap:8px;">
+        <span>💾</span> Trades save automatically to this browser. Use the same browser and device to access your history.
+      </div>
 
       <!-- Portfolio summary bar -->
       <div id="portfolio-summary-bar" style="display:none;background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:16px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
@@ -1059,9 +1062,8 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 <script>
 // CONFIG
-const SUPABASE_URL      = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV';
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 const DEMO_MODE         = true;
 
 // TRADER DATA
@@ -1184,7 +1186,37 @@ const TRADER_UNIVERSES = {
 };
 
 // Per-session picks cache: traderId → array of pick objects
-const PICKS_CACHE = {};
+// PICKS_CACHE — persists to localStorage, expires at midnight
+// Structure: { traderId: { picks, marketComment, generatedAt, expiresAt, rawText } }
+const PICKS_CACHE = loadPicksCache();
+
+function midnightTimestamp(){
+  const now=new Date();
+  const midnight=new Date(now);
+  midnight.setHours(24,0,0,0); // next midnight
+  return midnight.getTime();
+}
+
+function loadPicksCache(){
+  try{
+    const raw=localStorage.getItem('ta_picks_cache');
+    if(!raw)return {};
+    const stored=JSON.parse(raw);
+    const now=Date.now();
+    // Drop any trader whose picks have expired past midnight
+    const valid={};
+    Object.entries(stored).forEach(([id,data])=>{
+      if(data.expiresAt&&data.expiresAt>now)valid[id]=data;
+    });
+    return valid;
+  }catch(e){return {};}
+}
+
+function savePicksCache(){
+  try{
+    localStorage.setItem('ta_picks_cache',JSON.stringify(PICKS_CACHE));
+  }catch(e){console.warn('Could not save picks cache:',e.message);}
+}
 let activePicsTrader = null;
 let picksIsScanning = false;
 
@@ -1381,13 +1413,36 @@ async function scanTraderPicks(trader) {
   try {
     const universe = TRADER_UNIVERSES[trader.id] || [];
     const prompt = buildPicksPrompt(trader, universe);
+
+    // Fetch live prices for all tickers in this trader's universe
+    // This grounds the AI's analysis in real current data
+    let priceContext = ``;
+    try {
+      const prices = await fetchPrices(universe);
+      if (prices.size > 0) {
+        priceContext = '\n\n=== CURRENT MARKET PRICES ===\n';
+        prices.forEach((p, t) => {
+          const dir = (p.changePct || 0) >= 0 ? '▲' : '▼';
+          priceContext += `${t}: $${p.price?.toFixed(2) ?? '--'} ${dir}${Math.abs(p.changePct || 0).toFixed(2)}% today`;
+          if (p.volume) priceContext += ` | Vol: ${(p.volume/1e6).toFixed(1)}M`;
+          priceContext += '
+';
+        });
+        priceContext += '=== END PRICES ===
+';
+        priceContext += 'Reference these actual prices in your analysis and picks.
+';
+      }
+    } catch(e) { console.warn('Price fetch for scan failed:', e.message); }
+
+    const enrichedPrompt = prompt + priceContext;
     const response = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 4000,
-        system: prompt,
+        system: enrichedPrompt,
         messages: [{ role:'user', content:`Run your daily scan now. Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}. Scan your universe and surface your best picks. Speak as ${trader.name}.` }],
       })
     });
@@ -1396,8 +1451,10 @@ async function scanTraderPicks(trader) {
     const rawText = data.content?.[0]?.text || '';
     const parsed = parsePicksResponse(rawText, trader);
     parsed.generatedAt = 'Generated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    parsed.expiresAt = midnightTimestamp(); // auto-expire at midnight
     parsed.rawText = rawText;
     PICKS_CACHE[trader.id] = parsed;
+    savePicksCache(); // persist to localStorage
     // Mark tab as scanned
     document.querySelectorAll('.trader-tab').forEach(t => {
       if (t.dataset.trader === trader.id) t.classList.add('scanned');
@@ -1647,14 +1704,17 @@ function buildUI(){
   TRADERS.forEach(t=>{
     const ac=archColor(t.arch);
     const btn=document.createElement('button');
-    btn.className='trader-tab';
+    const hasCached=!!PICKS_CACHE[t.id];
+    btn.className='trader-tab'+(hasCached?' scanned':'');
     btn.dataset.trader=t.id;
     btn.style.cssText=`border-color:${ac.color}40;`;
     btn.innerHTML=`<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${ac.color};margin-right:5px;flex-shrink:0;vertical-align:middle;"></span>${t.name}`;
-    btn.title=t.arch;
+    btn.title=t.arch+(hasCached?' — picks loaded from today':'');
     btn.onclick=()=>switchPicksTrader(t);
     tabRow.appendChild(btn);
   });
+  // If any picks are already cached from localStorage, update dashboard preview now
+  if(Object.keys(PICKS_CACHE).length>0)updateDashPicksPreview();
   // Populate journal trader select
   const js=document.getElementById('jnl-trader');
   if(js){js.innerHTML='';TRADERS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${t.name} (${t.arch})`;js.appendChild(o);});}
@@ -1794,6 +1854,12 @@ async function sendMessage(){
   isStreaming=true;
   document.getElementById('chat-send-btn').disabled=true;
   try{
+    // Fetch live market context — injects real price + news into prompt
+    let marketCtx='';
+    if(currentTicker){
+      try{ marketCtx=await buildMarketContext(currentTicker); }
+      catch(e){ console.warn('Market context failed:',e.message); }
+    }
     const systemPrompt=`${selectedTrader.persona}\n\nKey methodology rules:\n${selectedTrader.rules.map((r,i)=>`${i+1}. ${r}`).join('\n')}${currentTicker?`\n\nThe user is currently analyzing the ticker: ${currentTicker}`:''}`;
     const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages:chatHistory})});
     if(!res.ok)throw new Error(`API ${res.status}`);
@@ -2109,8 +2175,10 @@ function closeStyleGuide(e){
 function refreshActivePicks(){
   if(!activePicsTrader||picksIsScanning)return;
   delete PICKS_CACHE[activePicsTrader.id];
+  savePicksCache(); // remove from localStorage too
   document.querySelector(`.trader-tab[data-trader="${activePicsTrader.id}"]`)?.classList.remove('scanned');
   document.getElementById('picks-timestamp').textContent='';
+  showToast(`Refreshing ${activePicsTrader.name} picks...`,'info');
   switchPicksTrader(activePicsTrader);
 }
 
@@ -2330,36 +2398,139 @@ function quickSell(ticker, traderId, totalShares) {
   document.getElementById('jnl-ticker').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// ═══════════════════════════════════════════════════
+// MARKET DATA LAYER
+// All calls go through /api/market (Vercel serverless function)
+// which holds the POLYGON_KEY server-side and caches responses.
+// ═══════════════════════════════════════════════════
+
+// Client-side price cache — avoids redundant calls within same session
+const priceCache = {};
+const PRICE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function getPriceCached(ticker) {
+  const e = priceCache[ticker];
+  if (!e) return null;
+  if (Date.now() - e.ts > PRICE_TTL_MS) { delete priceCache[ticker]; return null; }
+  return e;
+}
+function setPriceCached(ticker, data) {
+  priceCache[ticker] = { ...data, ts: Date.now() };
+}
+
+// Core fetch wrapper for /api/market
+async function fetchMarket(params) {
+  const qs = new URLSearchParams(params).toString();
+  const resp = await fetch(`/api/market?${qs}`);
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Market API ${resp.status}`);
+  }
+  return resp.json();
+}
+
+// Fetch prices for multiple tickers — batched, cached
+// Returns Map<ticker, { price, changePct, change, open, high, low, volume, vwap }>
+async function fetchPrices(tickers) {
+  if (!tickers || !tickers.length) return new Map();
+  const needed = tickers.filter(t => !getPriceCached(t));
+  if (needed.length) {
+    // Batch in chunks of 16 (safe limit)
+    for (let i = 0; i < needed.length; i += 16) {
+      const chunk = needed.slice(i, i + 16);
+      try {
+        const data = await fetchMarket({ action: 'snapshot', tickers: chunk.join(',') });
+        (data.results || []).forEach(r => setPriceCached(r.ticker, r));
+      } catch(e) { console.warn('[fetchPrices]', e.message); }
+    }
+  }
+  const map = new Map();
+  tickers.forEach(t => { const c = getPriceCached(t); if (c) map.set(t, c); });
+  return map;
+}
+
+// Fetch news headlines for a ticker (server caches 1 hour)
+async function fetchTickerNews(ticker, limit = 5) {
+  try {
+    const data = await fetchMarket({ action: 'news', ticker, limit });
+    return data.results || [];
+  } catch(e) { console.warn('[fetchTickerNews]', e.message); return []; }
+}
+
+// Build market context string to inject into AI prompts
+async function buildMarketContext(ticker) {
+  const [prices, news] = await Promise.all([
+    fetchPrices([ticker]),
+    fetchTickerNews(ticker, 5),
+  ]);
+  const p = prices.get(ticker);
+  let ctx = `
+
+=== LIVE MARKET DATA: ${ticker} ===
+`;
+  if (p && p.price) {
+    const dir = (p.changePct || 0) >= 0 ? '▲' : '▼';
+    ctx += `Price: $${p.price.toFixed(2)} ${dir} ${Math.abs(p.changePct || 0).toFixed(2)}% today
+`;
+    if (p.open)   ctx += `Open: $${p.open.toFixed(2)} | High: $${p.high.toFixed(2)} | Low: $${p.low.toFixed(2)}
+`;
+    if (p.volume) ctx += `Volume: ${(p.volume/1e6).toFixed(1)}M shares
+`;
+    if (p.vwap)   ctx += `VWAP: $${p.vwap.toFixed(2)}
+`;
+  } else {
+    ctx += `(Live price unavailable — /api/market.js may not be deployed yet)
+`;
+  }
+  if (news.length) {
+    ctx += `
+Recent news (${news.length} articles):
+`;
+    news.forEach((a, i) => {
+      ctx += `${i+1}. [${a.source} · ${timeSince(a.publishedAt)}] ${a.title}
+`;
+    });
+  }
+  ctx += `
+Data as of: ${new Date().toLocaleTimeString()}
+=== END MARKET DATA ===
+`;
+  ctx += `Use this data to ground your analysis. Reference specific prices and headlines where relevant to your methodology.
+`;
+  return ctx;
+}
+
+// Human-readable time difference
+function timeSince(isoStr) {
+  if (!isoStr) return '';
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const mins = Math.floor(diff/60000);
+  const hours = Math.floor(diff/3600000);
+  const days = Math.floor(diff/86400000);
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+}
+
+// Portfolio price refresh — calls /api/market with correct format
 async function refreshPositionPrices() {
   const positions = buildPositions();
   if (!positions.length) { showToast('No open positions to refresh', 'info'); return; }
   const btn = document.getElementById('refresh-prices-btn');
-  if (btn) btn.style.opacity = '0.5';
-  const key = typeof POLYGON_KEY !== 'undefined' ? POLYGON_KEY : '';
-  if (!key || key === 'YOUR_POLYGON_KEY') {
-    showToast('Add your Polygon key to enable live prices', 'info');
-    if (btn) btn.style.opacity = '1';
-    return;
-  }
+  if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
   try {
-    // Batch fetch — 1 API call for all tickers (Polygon snapshot endpoint)
-    const tickers = positions.map(p => p.ticker).join(',');
-    const resp = await fetch(`/api/market?tickers=${tickers}`);
-    const data = await resp.json();
-    if (data.results) {
-      data.results.forEach(r => {
-        portfolioPrices[r.T] = { price: r.c || r.vw, change_pct: r.todaysChangePerc || 0 };
-      });
-    }
+    const tickers = positions.map(p => p.ticker);
+    const prices = await fetchPrices(tickers);
+    // Populate portfolioPrices which renderOpenPositions reads
+    prices.forEach((data, ticker) => { portfolioPrices[ticker] = data; });
     renderOpenPositions();
-    showToast('Prices updated', 'success');
+    showToast(`Prices updated for ${prices.size} position${prices.size !== 1 ? 's' : ''}`, 'success');
   } catch(e) {
     showToast('Price refresh failed: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = ''; }
   }
-  if (btn) btn.style.opacity = '1';
 }
-
- // kept for compat, no longer used
 
 // ═══════════════════════════════════════════════════
 // FAVORITES
@@ -2594,36 +2765,42 @@ async function initTickerScroll(){
   const track=document.getElementById('ticker-scroll-track');
   if(!track)return;
 
-  // Try Polygon if key is set
-  if(typeof POLYGON_KEY!=='undefined'&&POLYGON_KEY&&POLYGON_KEY!=='YOUR_POLYGON_KEY'){
-    try{
-      const tickers=TICKER_SCROLL_SYMBOLS.join(',');
-      const resp=await fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${tickers}&apiKey=${POLYGON_KEY}`);
+  // Always try the server-side proxy first — avoids CORS and keeps key server-side
+  try{
+    const tickers=TICKER_SCROLL_SYMBOLS.join(',');
+    const resp=await fetch(`/api/market?action=snapshot&tickers=${tickers}`);
+    if(resp.ok){
       const data=await resp.json();
-      if(data.tickers&&data.tickers.length){
-        const items=data.tickers.map(t=>{
-          const chg=t.todaysChangePerc||0;
+      if(data.results&&data.results.length){
+        const items=data.results.map(t=>{
+          const chg=t.changePct||0;
           const dir=chg>=0?'up':'down';
-          const sym=t.ticker;
-          const price=t.day?.c?t.day.c.toFixed(2):'--';
-          const news=''; // news from separate call if needed
-          return `<span class="ticker-scroll-item"><span class="ticker-scroll-sym">${sym}</span><span class="ticker-scroll-price">$${price}</span><span class="ticker-scroll-chg ${dir}">${chg>=0?'+':''} ${chg.toFixed(2)}%</span></span>`;
+          const price=t.price?t.price.toFixed(2):'--';
+          return `<span class="ticker-scroll-item"><span class="ticker-scroll-sym">${escHtml(t.ticker)}</span><span class="ticker-scroll-price">$${price}</span><span class="ticker-scroll-chg ${dir}">${chg>=0?'+':''}${chg.toFixed(2)}%</span></span>`;
         }).join('');
-        // Duplicate for seamless loop
+        // Duplicate for seamless infinite loop
         track.innerHTML=items+items;
+        // Refresh every 5 minutes
+        setTimeout(initTickerScroll, 5*60*1000);
         return;
       }
-    }catch(e){console.warn('Polygon ticker scroll failed:',e.message);}
-  }
+    }
+  }catch(e){console.warn('Ticker scroll API call failed:',e.message);}
 
-  // Fallback — educational news ticker
+  // Fallback — enough items to fill the scroll bar and loop smoothly
   const headlines=[
-    {sym:'MARKET',text:'Select your favorite traders to see their daily picks'},
-    {sym:'PICKS',text:'Open Daily Picks to run methodology scans across your universe'},
-    {sym:'JOURNAL',text:'Log your trades and get AI post-mortems from your favorite traders'},
-    {sym:'ENGINE',text:'Ask any of the 25 traders to analyze a specific ticker'},
-    {sym:'LEARN',text:'Use the style guide to understand each trading methodology'},
-    {sym:'ATLAS',text:'Favorite up to 5 traders to prime your morning watchlist'},
+    {sym:'NVDA',   text:'AI infrastructure leader — watch for momentum continuation'},
+    {sym:'PLTR',   text:'Government AI contracts driving institutional accumulation'},
+    {sym:'SOFI',   text:'Fintech adoption running ahead of analyst coverage'},
+    {sym:'COIN',   text:'Crypto infrastructure play on institutional Bitcoin adoption'},
+    {sym:'TSLA',   text:'EV + energy ecosystem — Camillo flags brand cultural shift'},
+    {sym:'IONQ',   text:'Quantum computing — earliest stage of technology adoption curve'},
+    {sym:'PICKS',  text:'Open Daily Picks to run your traders methodology scans'},
+    {sym:'ENGINE', text:'Ask any of the 25 traders to analyze a specific ticker'},
+    {sym:'LEARN',  text:'Open the style guide on any trader card to understand their methodology'},
+    {sym:'ATLAS',  text:'Star up to 5 traders to build your personal daily watchlist'},
+    {sym:'HOOD',   text:'Retail investing platform — Lynch flags PEG below 1'},
+    {sym:'ACHR',   text:'eVTOL early adoption — Wood flags 5-year disruptive tech curve'},
   ];
   const items=headlines.map(h=>`<span class="ticker-scroll-item"><span class="ticker-scroll-sym" style="color:var(--gold);">${h.sym}</span><span class="ticker-scroll-news">${h.text}</span></span>`).join('');
   track.innerHTML=items+items;
