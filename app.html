@@ -745,6 +745,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
               <div class="mdc-stat"><div class="mdc-stat-label">Volume</div><div class="mdc-stat-val" id="mdc-vol">--</div></div>
               <div class="mdc-stat"><div class="mdc-stat-label">52W High</div><div class="mdc-stat-val" id="mdc-high">--</div></div>
               <div class="mdc-stat"><div class="mdc-stat-label">52W Low</div><div class="mdc-stat-val" id="mdc-low">--</div></div>
+              <div class="mdc-stat"><div class="mdc-stat-label">Volume</div><div class="mdc-stat-val" id="mdc-volume">--</div></div>
               <div class="mdc-stat"><div class="mdc-stat-label">Mkt Cap</div><div class="mdc-stat-val" id="mdc-cap">--</div></div>
             </div>
           </div>
@@ -1062,9 +1063,12 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 <script>
 // CONFIG
-const SUPABASE_URL      = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV';
+// ── App configuration — replace YOUR_ values with real keys ──────────
+// SUPABASE_URL and SUPABASE_ANON_KEY: supabase.com → your project → Settings → API
+// POLYGON_KEY: polygon.io → dashboard → API Keys
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const POLYGON_KEY       = 'YOUR_POLYGON_KEY';
 const DEMO_MODE         = true;
 
 // TRADER DATA
@@ -1771,6 +1775,11 @@ async function hydrateFromNetwork() {
     const h = new Date().getHours();
     const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
     document.getElementById('dash-greeting').textContent = `${g}, ${currentUser.display_name}.`;
+    const subEl = document.getElementById('dash-sub');
+    if (subEl) {
+      const day = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+      subEl.textContent = `${day} — ${Object.keys(PICKS_CACHE).length} traders scanned today`;
+    }
 
     // Update watchlist from fresh data
     watchlistItems = watchlistResult.data || [];
@@ -1876,6 +1885,10 @@ function buildUI(){
   setJournalMode('buy');
   setTimeout(initJournalCalc, 100);
 
+  // Education nudge and ticker scroll — fire after UI is painted
+  renderDashEduNudge();
+  setTimeout(initTickerScroll, 500); // slight delay so page renders first
+
   // Auto-load first trader (Camillo) when picks view is first opened
   // Actual load happens in navigate() when view-picks becomes active
   // Compare selects
@@ -1899,7 +1912,8 @@ function buildUI(){
 function buildTradersGrid(traders){
   const g=document.getElementById('traders-grid-app');
   g.innerHTML='';
-  traders.forEach(t=>{
+  // Render first 6 immediately, rest after frame paint (faster perceived load)
+  const renderBatch = (batch) => batch.forEach(t=>{
     const ac=archColor(t.arch);
     const meta=getTraderMeta(t.id);
     const isFav=favoriteTraderIds.includes(t.id);
@@ -1924,6 +1938,12 @@ function buildTradersGrid(traders){
     c.onclick=()=>selectTrader(t);
     g.appendChild(c);
   });
+  // Render first 6 immediately for fast paint
+  renderBatch(traders.slice(0, 6));
+  // Rest after next animation frame
+  if (traders.length > 6) {
+    requestAnimationFrame(() => setTimeout(() => renderBatch(traders.slice(6)), 0));
+  }
 }
 
 // NAVIGATION
@@ -2071,8 +2091,29 @@ function setupKeyboard(){
       currentTicker=val;
       document.getElementById('market-data-card').style.display='block';
       document.getElementById('mdc-ticker').textContent=val;
-      document.getElementById('mdc-price').textContent='Pro / Elite';
-      document.getElementById('mdc-change').textContent='Live data coming soon';
+      document.getElementById('mdc-price').textContent='Loading...';
+      document.getElementById('mdc-change').textContent='';
+      // Fetch live price from /api/market
+      fetchPrices([val]).then(prices=>{
+        const p=prices.get(val);
+        if(p&&p.price){
+          document.getElementById('mdc-price').textContent='$'+p.price.toFixed(2);
+          const chg=p.changePct||0;
+          const dir=chg>=0?'▲':'▼';
+          const chgEl=document.getElementById('mdc-change');
+          chgEl.textContent=`${dir} ${Math.abs(chg).toFixed(2)}% today`;
+          chgEl.style.color=chg>=0?'var(--emerald)':'var(--danger)';
+          if(document.getElementById('mdc-high'))document.getElementById('mdc-high').textContent=p.high?'$'+p.high.toFixed(2):'--';
+          if(document.getElementById('mdc-low'))document.getElementById('mdc-low').textContent=p.low?'$'+p.low.toFixed(2):'--';
+          if(document.getElementById('mdc-volume'))document.getElementById('mdc-volume').textContent=p.volume?(p.volume/1e6).toFixed(1)+'M':'--';
+        } else {
+          document.getElementById('mdc-price').textContent='--';
+          document.getElementById('mdc-change').textContent='Price unavailable';
+        }
+      }).catch(()=>{
+        document.getElementById('mdc-price').textContent='--';
+        document.getElementById('mdc-change').textContent='Check /api/market deployment';
+      });
       if(!selectedTrader){navigate('greats',document.querySelector('[data-view="greats"]'));showToast(`Ticker set to ${val}. Now pick a trader.`,'info');}
       else{navigate('engine',document.querySelector('[data-view="engine"]'));const ci=document.getElementById('chat-input');ci.value=`Analyze ${val} through your methodology`;ci.focus();}
     }
@@ -2913,23 +2954,26 @@ async function initTickerScroll(){
     }
   }catch(e){console.warn('Ticker scroll API call failed:',e.message);}
 
-  // Fallback — enough items to fill the scroll bar and loop smoothly
+  // Fallback — educational ticker with enough items to scroll smoothly
   const headlines=[
     {sym:'NVDA',   text:'AI infrastructure leader — watch for momentum continuation'},
     {sym:'PLTR',   text:'Government AI contracts driving institutional accumulation'},
     {sym:'SOFI',   text:'Fintech adoption running ahead of analyst coverage'},
-    {sym:'COIN',   text:'Crypto infrastructure play on institutional Bitcoin adoption'},
+    {sym:'COIN',   text:'Crypto infrastructure — institutional Bitcoin adoption play'},
     {sym:'TSLA',   text:'EV + energy ecosystem — Camillo flags brand cultural shift'},
     {sym:'IONQ',   text:'Quantum computing — earliest stage of technology adoption curve'},
-    {sym:'PICKS',  text:'Open Daily Picks to run your traders methodology scans'},
-    {sym:'ENGINE', text:'Ask any of the 25 traders to analyze a specific ticker'},
-    {sym:'LEARN',  text:'Open the style guide on any trader card to understand their methodology'},
-    {sym:'ATLAS',  text:'Star up to 5 traders to build your personal daily watchlist'},
     {sym:'HOOD',   text:'Retail investing platform — Lynch flags PEG below 1'},
-    {sym:'ACHR',   text:'eVTOL early adoption — Wood flags 5-year disruptive tech curve'},
+    {sym:'ACHR',   text:'eVTOL — Wood flags 5-year disruptive technology curve'},
+    {sym:'PICKS',  text:'Open Daily Picks → run your favorite trader methodology scans'},
+    {sym:'ENGINE', text:'AI Engine → ask any of the 25 traders to analyze a ticker'},
+    {sym:'ATLAS',  text:'Star up to 5 traders → build your personal daily watchlist'},
+    {sym:'LEARN',  text:'Style Guide → understand each methodology before you trade'},
   ];
-  const items=headlines.map(h=>`<span class="ticker-scroll-item"><span class="ticker-scroll-sym" style="color:var(--gold);">${h.sym}</span><span class="ticker-scroll-news">${h.text}</span></span>`).join('');
-  track.innerHTML=items+items;
+  const items=headlines.map(h=>`<span class="ticker-scroll-item"><span class="ticker-scroll-sym" style="color:var(--gold);margin-right:8px;">${h.sym}</span><span class="ticker-scroll-news">${escHtml(h.text)}</span></span>`).join('');
+  // Triple the items so the loop never shows a gap
+  track.innerHTML=items+items+items;
+  // Set animation duration proportional to content width
+  track.style.animationDuration = (headlines.length * 5) + 's';
 }
 
 // ═══════════════════════════════════════════════════
