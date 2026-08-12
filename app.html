@@ -443,7 +443,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 /* TICKER SCROLL */
 .ticker-scroll-bar{background:var(--navy-mid);border-bottom:1px solid var(--border);height:32px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;margin:-24px -24px 16px -24px;padding:0;}
-.ticker-scroll-track{display:flex;gap:0;animation:tickerScroll 60s linear infinite;white-space:nowrap;align-items:center;}
+.ticker-scroll-track{display:flex;gap:0;animation:tickerScroll 60s linear infinite;white-space:nowrap;align-items:center;will-change:transform;min-width:200%;}
 .ticker-scroll-track:hover{animation-play-state:paused;}
 .ticker-scroll-item{font-family:var(--mono);font-size:11px;padding:0 20px;display:inline-flex;align-items:center;gap:8px;border-right:1px solid var(--border);height:32px;}
 .ticker-scroll-item.loading{color:var(--slate);}
@@ -1062,9 +1062,8 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 <script>
 // CONFIG
-const SUPABASE_URL      = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV';
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 const DEMO_MODE         = true;
 
 // TRADER DATA
@@ -1415,25 +1414,105 @@ async function scanTraderPicks(trader) {
     const universe = TRADER_UNIVERSES[trader.id] || [];
     const prompt = buildPicksPrompt(trader, universe);
 
-    // Fetch live prices for all tickers in this trader's universe
-    // This grounds the AI's analysis in real current data
-    let priceContext = ``;
+    // ── Step 1: Fetch live prices ──────────────────────────────────────
+    let priceContext = '';
     try {
       const prices = await fetchPrices(universe);
       if (prices.size > 0) {
-        priceContext = '\n\n=== CURRENT MARKET PRICES ===\n';
+        priceContext = '\n\n=== CURRENT PRICES (use these exact figures) ===\n';
         prices.forEach((p, t) => {
           const dir = (p.changePct || 0) >= 0 ? '▲' : '▼';
-          priceContext += `${t}: $${p.price?.toFixed(2) ?? '--'} ${dir}${Math.abs(p.changePct || 0).toFixed(2)}% today`;
+          priceContext += `${t}: $${p.price?.toFixed(2) ?? '--'} ${dir}${Math.abs(p.changePct||0).toFixed(2)}% today`;
           if (p.volume) priceContext += ` | Vol: ${(p.volume/1e6).toFixed(1)}M`;
           priceContext += '\n';
         });
         priceContext += '=== END PRICES ===\n';
-        priceContext += 'Reference these actual prices in your analysis and picks.\n';
       }
-    } catch(e) { console.warn('Price fetch for scan failed:', e.message); }
+    } catch(e) { console.warn('Price fetch failed:', e.message); }
 
-    const enrichedPrompt = prompt + priceContext;
+    // ── Step 2: Fetch news for each ticker (parallel, cached 1hr) ──────
+    let newsContext = '';
+    try {
+      // Fetch news for top 5 tickers to stay within rate limits
+      const newsTargets = universe.slice(0, 5);
+      const newsResults = await Promise.allSettled(
+        newsTargets.map(t => fetchTickerNews(t, 3))
+      );
+      const allNews = [];
+      newsResults.forEach((r, i) => {
+        if (r.status === 'fulfilled' && r.value.length) {
+          r.value.forEach(a => allNews.push({ ticker: newsTargets[i], ...a }));
+        }
+      });
+      if (allNews.length) {
+        newsContext = '\n\n=== RECENT NEWS ===\n';
+        allNews.slice(0, 10).forEach(a => {
+          newsContext += `[${a.ticker}] ${a.title} (${a.source}, ${timeSince(a.publishedAt)})\n`;
+        });
+        newsContext += '=== END NEWS ===\n';
+      }
+    } catch(e) { console.warn('News fetch failed:', e.message); }
+
+    // ── Step 3: Fetch social signals (Reddit public JSON) ──────────────
+    let socialContext = '';
+    try {
+      const socialTargets = universe.slice(0, 4);
+      const redditResults = await Promise.allSettled(
+        socialTargets.map(t =>
+          fetch(`https://www.reddit.com/search.json?q=${t}&sort=hot&limit=3&t=day`,
+            { headers: { 'User-Agent': 'TraderAtlas/1.0' } })
+          .then(r => r.json())
+          .then(d => ({ ticker: t, posts: d?.data?.children?.length || 0,
+            titles: (d?.data?.children||[]).slice(0,2).map(c=>c.data?.title||'').filter(Boolean) }))
+        )
+      );
+      const signals = redditResults
+        .filter(r => r.status === 'fulfilled' && r.value.posts > 0)
+        .map(r => r.value);
+      if (signals.length) {
+        socialContext = '\n\n=== REDDIT SOCIAL SIGNALS (today) ===\n';
+        signals.forEach(s => {
+          socialContext += `${s.ticker}: ${s.posts} posts today`;
+          if (s.titles.length) socialContext += ` | Top: "${s.titles[0].slice(0,80)}"`;
+          socialContext += '\n';
+        });
+        socialContext += '=== END SOCIAL ===\n';
+      }
+    } catch(e) { console.warn('Social fetch failed:', e.message); }
+
+    // ── Step 4: StockTwits sentiment (if available) ────────────────────
+    // Especially relevant for Camillo's social arbitrage methodology
+    let sentimentContext = '';
+    try {
+      if (trader.id === 'camillo' || trader.arch?.includes('Social') || trader.arch?.includes('Momentum')) {
+        const stTargets = universe.slice(0, 4);
+        const stResults = await Promise.allSettled(
+          stTargets.map(t =>
+            fetch(`https://api.stocktwits.com/api/2/streams/symbol/${t}.json`)
+              .then(r => r.json())
+              .then(d => ({
+                ticker: t,
+                bullish: d?.messages?.filter(m => m.entities?.sentiment?.basic === 'Bullish').length || 0,
+                bearish: d?.messages?.filter(m => m.entities?.sentiment?.basic === 'Bearish').length || 0,
+                total: d?.messages?.length || 0,
+              }))
+          )
+        );
+        const signals = stResults
+          .filter(r => r.status === 'fulfilled' && r.value.total > 0)
+          .map(r => r.value);
+        if (signals.length) {
+          sentimentContext = '\n\n=== STOCKTWITS SENTIMENT ===\n';
+          signals.forEach(s => {
+            const ratio = s.total ? Math.round(s.bullish/s.total*100) : 0;
+            sentimentContext += `${s.ticker}: ${ratio}% bullish (${s.bullish}B/${s.bearish}Be of ${s.total} messages)\n`;
+          });
+          sentimentContext += '=== END SENTIMENT ===\n';
+        }
+      }
+    } catch(e) { console.warn('StockTwits fetch failed:', e.message); }
+
+    const enrichedPrompt = prompt + priceContext + newsContext + socialContext + sentimentContext;
     const response = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1441,12 +1520,13 @@ async function scanTraderPicks(trader) {
         model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         system: enrichedPrompt,
-        messages: [{ role:'user', content:`Run your daily scan now. Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}. Scan your universe and surface your best picks. Speak as ${trader.name}.` }],
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role:'user', content:`Run your daily scan now. Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}. Search for current news, premarket data, and recent developments on the stocks in your universe. Then surface your best picks with real context. Speak as ${trader.name}.` }],
       })
     });
     if (!response.ok) throw new Error(`API error ${response.status}`);
     const data = await response.json();
-    const rawText = data.content?.[0]?.text || '';
+    const rawText = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n') || '';
     const parsed = parsePicksResponse(rawText, trader);
     parsed.generatedAt = 'Generated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     parsed.expiresAt = midnightTimestamp(); // auto-expire at midnight
@@ -1908,17 +1988,19 @@ async function sendMessage(){
   isStreaming=true;
   document.getElementById('chat-send-btn').disabled=true;
   try{
-    // Fetch live market context — injects real price + news into prompt
+    const systemPrompt=`${selectedTrader.persona}\n\nKey methodology rules:\n${selectedTrader.rules.map((r,i)=>`${i+1}. ${r}`).join('\n')}`;
+    // Fetch live market context if a ticker is set
     let marketCtx='';
     if(currentTicker){
       try{ marketCtx=await buildMarketContext(currentTicker); }
-      catch(e){ console.warn('Market context failed:',e.message); }
+      catch(e){ console.warn('Market context:',e.message); }
     }
-    const systemPrompt=`${selectedTrader.persona}\n\nKey methodology rules:\n${selectedTrader.rules.map((r,i)=>`${i+1}. ${r}`).join('\n')}${currentTicker?`\n\nThe user is currently analyzing the ticker: ${currentTicker}`:''}`;
-    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:systemPrompt,messages:chatHistory})});
+    const enrichedSystemPrompt=systemPrompt+marketCtx;
+    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:enrichedSystemPrompt,tools:[{type:'web_search_20250305',name:'web_search'}],messages:chatHistory})});
     if(!res.ok)throw new Error(`API ${res.status}`);
     const data=await res.json();
-    const aiText=data.content?.[0]?.text||'No response received.';
+    // Extract text from response — handles both direct text and after tool_use
+    const aiText=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n')||'Analysis unavailable.';
     typingEl.remove();
     chatHistory.push({role:'assistant',content:aiText});
     appendMsg('ai',aiText);
@@ -2603,71 +2685,41 @@ function logTrade(){
   const traderId=document.getElementById('jnl-trader').value;
   const entryPrice=parseFloat(document.getElementById('jnl-entry-price').value)||0;
   const entryDate=document.getElementById('jnl-entry-date').value;
-  const totalShares=parseFloat(document.getElementById('jnl-shares').value)||null;
-  const size=parseFloat(document.getElementById('jnl-size').value)||0;
-  const thesis=document.getElementById('jnl-thesis').value.trim();
-  if(!ticker||!traderId||!entryPrice||!entryDate){showToast('Ticker, trader, entry price, and entry date required','error');return;}
+  const shares=parseFloat(document.getElementById('jnl-shares').value)||0;
+  const thesis=(document.getElementById('jnl-thesis').value||'').trim();
+  const exitPct=parseFloat(document.getElementById('jnl-exit-pct')?.value)||null;
+
+  if(!ticker||!traderId||!entryPrice||!entryDate||!shares){
+    showToast('Ticker, trader, date, price, and shares are all required','error');
+    return;
+  }
   const trader=TRADERS.find(t=>t.id===traderId);
+  const size=parseFloat((document.getElementById('jnl-size').value)||0)||(entryPrice*shares);
 
-  // Build exit legs from the dynamic rows
-  const exitRows=document.querySelectorAll('.jnl-exit-row');
-  const exits=[];
-  exitRows.forEach(row=>{
-    const price=parseFloat(row.querySelector('.jnl-exit-price').value)||null;
-    const date=row.querySelector('.jnl-exit-date').value||null;
-    const sharesOrPct=row.querySelector('.jnl-exit-qty').value.trim();
-    const type=row.querySelector('.jnl-exit-type').value; // 'shares' or 'pct'
-    if(price){exits.push({price,date,qty:sharesOrPct,type});}
-  });
-
-  // Auto-determine outcome
-  let outcome='open';
-  if(exits.length>0){
-    // Calculate weighted avg exit
-    let totalQty=0,weightedSum=0;
-    exits.forEach(ex=>{
-      const qty=parseFloat(ex.qty)||0;
-      totalQty+=qty;
-      weightedSum+=qty*ex.price;
-    });
-    const avgExit=totalQty>0?weightedSum/totalQty:exits[0].price;
-    outcome=avgExit>=entryPrice?'win':'loss';
-  }
-
-  // Weighted P&L across exit legs
-  let pnlPct=null,pnlDollar=null;
-  if(exits.length>0&&entryPrice){
-    let totalWeight=0,weightedPnl=0;
-    exits.forEach(ex=>{
-      const qty=parseFloat(ex.qty)||1;
-      const leg=(ex.price-entryPrice)/entryPrice*100;
-      totalWeight+=qty; weightedPnl+=leg*qty;
-    });
-    pnlPct=(totalWeight>0?weightedPnl/totalWeight:0).toFixed(2);
-    if(size&&totalWeight>0){pnlDollar=((parseFloat(pnlPct)/100)*size).toFixed(2);}
-  }
-
-  const entry={
+  const tx={
     id:Date.now().toString(),
     ticker,traderId,traderName:trader?.name||traderId,
-    entryPrice,entryDate,totalShares,size,thesis,
-    exits,outcome,pnlPct,pnlDollar,
+    type:jnlMode,
+    price:entryPrice,date:entryDate,shares,
+    size:parseFloat(size.toFixed(2)),
+    exitPct:jnlMode==='partial'?exitPct:(jnlMode==='sell'?100:null),
+    thesis,createdAt:new Date().toISOString(),
     aiAnalysis:null,
-    createdAt:new Date().toISOString()
   };
-  journalEntries.unshift(entry);
+  journalEntries.unshift(tx);
   localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
 
-  // Reset form
-  ['jnl-ticker','jnl-entry-price','jnl-shares','jnl-size','jnl-thesis'].forEach(id=>{
+  // Reset form fields
+  ['jnl-ticker','jnl-entry-price','jnl-shares','jnl-thesis','jnl-size'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
-  document.getElementById('jnl-entry-date').value='';
-  // Reset exit rows to one empty row
-  document.getElementById('jnl-exit-legs').innerHTML=buildExitRow();
+  const dateEl=document.getElementById('jnl-entry-date');if(dateEl)dateEl.value='';
+  const pctEl=document.getElementById('jnl-exit-pct');if(pctEl)pctEl.value='';
+  const calcEl=document.getElementById('jnl-auto-calc');if(calcEl)calcEl.textContent='';
+
   renderJournal();
   updateAllStats();
-  showToast(`${ticker} logged to journal`,'success');
+  showToast(`${ticker} ${jnlMode} logged — saved to this browser`,'success');
 }
 
 function buildExitRow(){
