@@ -1062,9 +1062,8 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
 <script>
 // CONFIG
-const SUPABASE_URL      = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV';
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 const DEMO_MODE         = true;
 
 // TRADER DATA
@@ -1685,7 +1684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4. Hide loading shell
   const loader = document.getElementById('app-loading');
-  if (loader) { loader.classList.add('hidden'); setTimeout(()=>loader.remove(), 350); }
+  if (loader) { loader.classList.add('hidden'); } // keep in DOM — showConfigError may need it
 
   // 5. Show onboarding if first time
   if (!localStorage.getItem('ta_onboarded')) {
@@ -1699,8 +1698,8 @@ document.addEventListener('DOMContentLoaded', () => {
 async function hydrateFromNetwork() {
   // Hard timeout — if anything hangs for more than 10s, redirect to login
   const hardTimeout = setTimeout(() => {
-    console.error('hydrateFromNetwork timed out — redirecting to login');
-    window.location.href = 'login.html';
+    console.error('hydrateFromNetwork timed out after 10s');
+    showConfigError('Connection timed out. This usually means your Supabase URL or anon key is incorrect, or Supabase is unreachable. Check app.html and your Vercel environment variables, then refresh.');
   }, 10000);
 
   try {
@@ -1716,15 +1715,20 @@ async function hydrateFromNetwork() {
       return;
     }
 
-    // Wait for Supabase CDN to load (it loads async)
+    // Wait for Supabase CDN to load (it loads async — up to 5s)
     let attempts = 0;
-    while (!window.supabase && attempts < 30) {
+    while (!window.supabase && attempts < 50) {
+      if (attempts === 10) {
+        // Update loading text after 1s so user knows we're working
+        const logo = document.querySelector('.app-loading-logo');
+        if (logo) logo.innerHTML = 'Trader <span>Atlas</span><div style="font-size:11px;font-family:var(--mono);color:var(--slate);margin-top:8px;letter-spacing:0.06em;">Connecting...</div>';
+      }
       await new Promise(r => setTimeout(r, 100));
       attempts++;
     }
     if (!window.supabase) {
       clearTimeout(hardTimeout);
-      showConfigError('Could not load Supabase library. Check your internet connection and refresh.');
+      showConfigError('Could not load auth service. This is usually a network issue — check your connection and refresh the page.');
       return;
     }
 
@@ -1774,6 +1778,13 @@ async function hydrateFromNetwork() {
     updateAllStats();
     clearTimeout(hardTimeout);
 
+    // Auth succeeded — now safe to fully hide the loading shell
+    const authLoader = document.getElementById('app-loading');
+    if (authLoader) {
+      authLoader.classList.add('hidden');
+      setTimeout(() => { if(authLoader.parentNode) authLoader.parentNode.removeChild(authLoader); }, 400);
+    }
+
   } catch(err) {
     clearTimeout(hardTimeout);
     console.error('hydrateFromNetwork error:', err.message);
@@ -1786,18 +1797,25 @@ async function hydrateFromNetwork() {
 }
 
 function showConfigError(msg) {
-  const loader = document.getElementById('app-loading');
-  if (loader) {
-    loader.innerHTML = '<div style="text-align:center;padding:32px;max-width:480px;">'
-      + '<div style="font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:12px;">Configuration needed</div>'
-      + '<div style="font-size:13px;color:var(--slate-light);line-height:1.7;margin-bottom:20px;">' + escHtml(msg) + '</div>'
-      + '<a href="login.html" style="display:inline-block;background:none;border:1px solid var(--border);color:var(--slate-light);border-radius:6px;padding:8px 16px;font-size:12px;text-decoration:none;margin-right:8px;">Go to login</a>'
-      + '<button onclick="window.location.reload()" style="background:var(--emerald);color:var(--navy);border:none;border-radius:6px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;">Retry</button>'
-      + '</div>';
-    loader.style.opacity = '1';
-    loader.style.pointerEvents = 'auto';
-    loader.classList.remove('hidden');
+  // Create error overlay if app-loading was already removed or hidden
+  let overlay = document.getElementById('app-loading');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'app-loading';
+    overlay.style.cssText = 'position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:3000;';
+    document.body.appendChild(overlay);
   }
+  overlay.className = ''; // remove 'hidden'
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'auto';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<div style="text-align:center;padding:32px;max-width:480px;">'
+    + '<div style="font-size:32px;margin-bottom:16px;">⚠️</div>'
+    + '<div style="font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:12px;">Setup needed</div>'
+    + '<div style="font-size:13px;color:var(--slate-light);line-height:1.7;margin-bottom:24px;">' + escHtml(msg) + '</div>'
+    + '<a href="login.html" style="display:inline-block;background:none;border:1px solid var(--border);color:var(--slate-light);border-radius:6px;padding:8px 16px;font-size:12px;text-decoration:none;margin-right:8px;">Go to login</a>'
+    + '<button onclick="window.location.reload()" style="background:var(--emerald);color:var(--navy);border:none;border-radius:6px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;">Retry</button>'
+    + '</div>';
 }
 
 function buildUI(){
