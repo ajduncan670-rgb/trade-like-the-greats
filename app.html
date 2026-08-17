@@ -294,6 +294,24 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 .settings-input{background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;font-family:var(--sans);font-size:13px;color:var(--white);outline:none;min-width:200px;}
 .settings-input:focus{border-color:var(--emerald-dim);}
 
+/* ONBOARDING WALKTHROUGH */
+.onb-overlay{position:fixed;inset:0;z-index:500;pointer-events:none;}
+.onb-overlay.active{pointer-events:auto;}
+.onb-backdrop{position:fixed;inset:0;background:rgba(10,20,33,0.85);z-index:500;transition:opacity 0.3s;}
+.onb-tooltip{position:fixed;z-index:502;background:var(--navy-mid);border:1px solid var(--emerald-dim);border-radius:var(--radius-lg);padding:20px 22px;width:min(340px,88vw);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.onb-step-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--emerald);margin-bottom:8px;}
+.onb-title{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;}
+.onb-body{font-size:13px;color:var(--slate-light);line-height:1.7;margin-bottom:16px;}
+.onb-body strong{color:var(--emerald);}
+.onb-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.onb-dots{display:flex;gap:5px;}
+.onb-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background 0.2s;}
+.onb-dot.active{background:var(--emerald);}
+.onb-skip{background:none;border:none;color:var(--slate);font-size:11px;cursor:pointer;padding:4px;}
+.onb-skip:hover{color:var(--off-white);}
+.onb-next{background:var(--emerald);color:var(--navy);border:none;border-radius:var(--radius);padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+.onb-highlight{position:fixed;z-index:501;border-radius:var(--radius);outline:2px solid var(--emerald);outline-offset:3px;box-shadow:0 0 0 4000px rgba(10,20,33,0.8);pointer-events:none;transition:all 0.35s;}
+
 /* ONBOARDING */
 #onboarding-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.88);z-index:1000;display:none;align-items:center;justify-content:center;}
 #onboarding-overlay.show{display:flex;}
@@ -614,6 +632,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
       <button id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
+      <button class="topbar-btn topbar-btn-ghost" onclick="showHelpTour()" title="How to use Trader Atlas" style="margin-right:4px;">?</button>
       <button class="topbar-btn topbar-btn-ghost" onclick="signOut()">Sign out</button>
     </div>
   </header>
@@ -1066,10 +1085,41 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 // ── App configuration — replace YOUR_ values with real keys ──────────
 // SUPABASE_URL and SUPABASE_ANON_KEY: supabase.com → your project → Settings → API
 // POLYGON_KEY: polygon.io → dashboard → API Keys
-const SUPABASE_URL      = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV';
-const DEMO_MODE         = true;
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const POLYGON_KEY       = 'YOUR_POLYGON_KEY';
+const DEMO_MODE         = true; // flip false when Stripe live
+
+// ── PRICING TIERS ───────────────────────────────────────────────────
+// Free:  3 traders (engine only), no picks, no journal
+// Pro:   $19/mo — all 25 traders, picks for 5 favorites, journal
+// Elite: $39/mo — picks for all 25, AI post-mortems, compare, social signals
+const TIER_FEATURES = {
+  free:  { traders: 3,  picks: false, journal: false, compare: false, postMortem: false },
+  pro:   { traders: 25, picks: 5,     journal: true,  compare: false, postMortem: false },
+  elite: { traders: 25, picks: 25,    journal: true,  compare: true,  postMortem: true  },
+};
+
+function getUserTier() {
+  if (DEMO_MODE) return 'elite';
+  return currentUser?.tier || 'free';
+}
+
+function canAccess(feature) {
+  const tier = getUserTier();
+  const features = TIER_FEATURES[tier] || TIER_FEATURES.free;
+  return features[feature] === true || (typeof features[feature] === 'number' && features[feature] > 0);
+}
+
+function requireTier(minTier, action) {
+  const tierOrder = ['free','pro','elite'];
+  const current = tierOrder.indexOf(getUserTier());
+  const required = tierOrder.indexOf(minTier);
+  if (current >= required) return true;
+  const prices = {pro:'$19/month',elite:'$39/month'};
+  showToast(`${action} requires ${minTier.charAt(0).toUpperCase()+minTier.slice(1)} (${prices[minTier]}). Upgrade in Settings.`,'info');
+  return false;
+}
 
 // TRADER DATA
 const TRADERS = [
@@ -1659,31 +1709,35 @@ document.addEventListener('DOMContentLoaded', () => {
   buildUI();
   setupKeyboard();
 
-  // 2. Restore user from localStorage cache for instant greeting
-  const cachedUser = localStorage.getItem('ta_user_cache');
-  if (cachedUser) {
+    // 2. Restore user from localStorage cache for instant greeting
+  // Per-user keying: data stored under user ID prevents cross-user bleed on shared devices
+  const lastUserId = localStorage.getItem('ta_last_user_id');
+  if (lastUserId) {
     try {
-      const u = JSON.parse(cachedUser);
-      currentUser = u;
-      const initials = u.display_name.slice(0,2).toUpperCase();
-      document.getElementById('user-avatar').textContent = initials;
-      document.getElementById('user-name').textContent = u.display_name;
-      document.getElementById('user-tier').textContent = (u.tier||'elite').toUpperCase();
-      document.getElementById('settings-email').textContent = u.email;
-      document.getElementById('settings-name').value = u.display_name;
-      const h = new Date().getHours();
-      const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-      document.getElementById('dash-greeting').textContent = `${g}, ${u.display_name}.`;
-    } catch(e) { /* cache corrupt, ignore */ }
-  }
+      const cachedUser = localStorage.getItem(`ta_user_cache_${lastUserId}`);
+      if (cachedUser) {
+        const u = JSON.parse(cachedUser);
+        currentUser = u;
+        const initials = u.display_name.slice(0,2).toUpperCase();
+        document.getElementById('user-avatar').textContent = initials;
+        document.getElementById('user-name').textContent = u.display_name;
+        document.getElementById('user-tier').textContent = (u.tier||'elite').toUpperCase();
+        document.getElementById('settings-email').textContent = u.email;
+        document.getElementById('settings-name').value = u.display_name;
+        const h = new Date().getHours();
+        const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+        document.getElementById('dash-greeting').textContent = `${g}, ${u.display_name}.`;
+      }
+    } catch(e) {}
 
-  // 3. Restore watchlist count from cache
-  const cachedWL = localStorage.getItem('ta_watchlist_cache');
-  if (cachedWL) {
+    // 3. Restore user-keyed cached data (journal, watchlist, favorites)
     try {
-      watchlistItems = JSON.parse(cachedWL);
-      updateDashWatchlistStatus();
-  updateAllStats();
+      const cachedWL = localStorage.getItem(`ta_watchlist_cache_${lastUserId}`);
+      if (cachedWL) { watchlistItems = JSON.parse(cachedWL); document.getElementById('stat-watchlist').textContent = watchlistItems.length; }
+      const cachedJournal = localStorage.getItem(`ta_journal_${lastUserId}`);
+      if (cachedJournal) journalEntries = JSON.parse(cachedJournal);
+      const cachedFavs = localStorage.getItem(`ta_favorites_${lastUserId}`);
+      if (cachedFavs) favoriteTraderIds = JSON.parse(cachedFavs);
     } catch(e) {}
   }
 
@@ -1692,8 +1746,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loader) { loader.classList.add('hidden'); } // keep in DOM — showConfigError may need it
 
   // 5. Show onboarding if first time
+  // Start guided tour for new users
   if (!localStorage.getItem('ta_onboarded')) {
-    document.getElementById('onboarding-overlay').classList.add('show');
+    setTimeout(startOnboarding, 800); // slight delay so UI paints first
   }
 
   // 6. Hydrate from network asynchronously — doesn't block UI
@@ -1762,8 +1817,14 @@ async function hydrateFromNetwork() {
       tier: DEMO_MODE ? 'elite' : (profile?.tier || 'starter'),
     };
 
-    // Cache for next load
-    localStorage.setItem('ta_user_cache', JSON.stringify(currentUser));
+    // Cache under user ID — prevents cross-user data bleed on shared devices
+    localStorage.setItem('ta_last_user_id', currentUser.id);
+    localStorage.setItem(`ta_user_cache_${currentUser.id}`, JSON.stringify(currentUser));
+    // Re-load journal and favorites for THIS user (may differ from cached user)
+    const myJournal = localStorage.getItem(`ta_journal_${currentUser.id}`);
+    if (myJournal) { try { journalEntries = JSON.parse(myJournal); } catch(e) {} }
+    const myFavs = localStorage.getItem(`ta_favorites_${currentUser.id}`);
+    if (myFavs) { try { favoriteTraderIds = JSON.parse(myFavs); } catch(e) {} }
 
     // Update UI with fresh data
     const initials = currentUser.display_name.slice(0,2).toUpperCase();
@@ -1783,7 +1844,35 @@ async function hydrateFromNetwork() {
 
     // Update watchlist from fresh data
     watchlistItems = watchlistResult.data || [];
-    localStorage.setItem('ta_watchlist_cache', JSON.stringify(watchlistItems));
+    if(currentUser?.id)localStorage.setItem(`ta_watchlist_cache_${currentUser.id}`, JSON.stringify(watchlistItems));
+    // Load journal from Supabase for cross-device persistence
+    try {
+      const { data: journalData } = await sb.from('trade_journal')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', {ascending: false});
+      if (journalData && journalData.length > 0) {
+        // Map Supabase rows to our local format
+        journalEntries = journalData.map(r => ({
+          id: r.id,
+          ticker: r.ticker,
+          traderId: r.trader_id,
+          traderName: r.trader_name,
+          type: r.type,
+          price: parseFloat(r.price),
+          date: r.date,
+          shares: parseFloat(r.shares),
+          size: parseFloat(r.size)||0,
+          exitPct: r.exit_pct,
+          thesis: r.thesis||'',
+          aiAnalysis: r.ai_analysis||null,
+          createdAt: r.created_at,
+        }));
+        // Update localStorage cache
+        localStorage.setItem(`ta_journal_${currentUser.id}`, JSON.stringify(journalEntries));
+      }
+    } catch(e) { console.warn('Journal load from Supabase failed:', e.message); }
+
     updateDashWatchlistStatus();
     updateAllStats();
     clearTimeout(hardTimeout);
@@ -2263,7 +2352,136 @@ function nextOnboarding(){
   document.getElementById('ob-next-btn').textContent=s.btn;
   document.querySelectorAll('.ob-dot').forEach((d,i)=>d.classList.toggle('active',i===onboardingStep));
 }
-function dismissOnboarding(){document.getElementById('onboarding-overlay').classList.remove('show');localStorage.setItem('ta_onboarded','1');}
+// ═══════════════════════════════════════════════════
+// GUIDED ONBOARDING WALKTHROUGH
+// ═══════════════════════════════════════════════════
+const ONB_STEPS = [
+  {
+    title: 'Welcome to Trader Atlas',
+    body: 'You have access to <strong>25 legendary traders</strong> — each with their own methodology, voice, and market philosophy. This quick tour shows you how to get the most out of them.',
+    target: null, // center screen
+    position: 'center',
+  },
+  {
+    title: 'Your Traders',
+    body: 'Click any trader card to open the <strong>AI Engine</strong> and have a direct conversation. Ask them to analyze a ticker, explain their methodology, or find opportunities right now.',
+    target: '#quick-trader-grid',
+    position: 'bottom',
+  },
+  {
+    title: 'Daily Picks',
+    body: 'Every morning, your favorite traders scan their universe for setups that match their methodology. Star up to <strong>5 traders</strong> in The 25 Greats to prime your daily scan.',
+    target: '[data-view="picks"]',
+    position: 'right',
+  },
+  {
+    title: 'Trade Journal',
+    body: 'Log every trade with your entry, exit, and thesis. After closing a trade, request an <strong>AI post-mortem</strong> — the trader tells you what you did right and what to improve.',
+    target: '[data-view="journal"]',
+    position: 'right',
+  },
+  {
+    title: 'Enter any ticker',
+    body: 'Type a stock symbol in the search bar at the top and press Enter. Your selected trader will analyze it in real time using live price data and recent news. <strong>Try SOFI or NVDA.</strong>',
+    target: '#global-ticker',
+    position: 'bottom',
+  },
+];
+
+let onbStep = 0;
+let onbEl = null;
+let onbHighlight = null;
+let onbTooltip = null;
+
+function startOnboarding() {
+  if (onbEl) return;
+  onbStep = 0;
+
+  // Create overlay structure
+  onbEl = document.createElement('div');
+  onbEl.id = 'onb-overlay';
+  onbEl.className = 'onb-overlay active';
+
+  onbHighlight = document.createElement('div');
+  onbHighlight.className = 'onb-highlight';
+  onbHighlight.style.display = 'none';
+
+  onbTooltip = document.createElement('div');
+  onbTooltip.className = 'onb-tooltip';
+
+  onbEl.appendChild(onbHighlight);
+  onbEl.appendChild(onbTooltip);
+  document.body.appendChild(onbEl);
+
+  renderOnbStep();
+}
+
+function renderOnbStep() {
+  const step = ONB_STEPS[onbStep];
+  const isLast = onbStep === ONB_STEPS.length - 1;
+  const dots = ONB_STEPS.map((_,i) =>
+    `<div class="onb-dot${i===onbStep?' active':''}"></div>`
+  ).join('');
+
+  onbTooltip.innerHTML = `
+    <div class="onb-step-label">Step ${onbStep+1} of ${ONB_STEPS.length}</div>
+    <div class="onb-title">${step.title}</div>
+    <div class="onb-body">${step.body}</div>
+    <div class="onb-actions">
+      <div class="onb-dots">${dots}</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="onb-skip" onclick="dismissOnboarding()">Skip tour</button>
+        <button class="onb-next" onclick="${isLast?'dismissOnboarding()':'nextOnbStep()'}">${isLast?'Get started →':'Next →'}</button>
+      </div>
+    </div>`;
+
+  // Position tooltip and highlight
+  if (step.target) {
+    const targetEl = document.querySelector(step.target);
+    if (targetEl) {
+      const rect = targetEl.getBoundingClientRect();
+      onbHighlight.style.display = 'block';
+      onbHighlight.style.top = (rect.top - 6) + 'px';
+      onbHighlight.style.left = (rect.left - 6) + 'px';
+      onbHighlight.style.width = (rect.width + 12) + 'px';
+      onbHighlight.style.height = (rect.height + 12) + 'px';
+
+      // Position tooltip relative to target
+      const tipW = 340;
+      let top = rect.bottom + 16;
+      let left = rect.left;
+      if (step.position === 'right') { left = rect.right + 16; top = rect.top; }
+      if (left + tipW > window.innerWidth - 20) left = window.innerWidth - tipW - 20;
+      if (top < 20) top = 20;
+      onbTooltip.style.top = top + 'px';
+      onbTooltip.style.left = left + 'px';
+      return;
+    }
+  }
+
+  // Center fallback
+  onbHighlight.style.display = 'none';
+  onbTooltip.style.top = '50%';
+  onbTooltip.style.left = '50%';
+  onbTooltip.style.transform = 'translate(-50%,-50%)';
+}
+
+function nextOnbStep() {
+  onbStep = Math.min(onbStep + 1, ONB_STEPS.length - 1);
+  onbTooltip.style.transform = '';
+  renderOnbStep();
+}
+
+function dismissOnboarding() {
+  document.getElementById('onboarding-overlay')?.classList.remove('show');
+  if (onbEl) { onbEl.remove(); onbEl = null; }
+  localStorage.setItem('ta_onboarded','1');
+}
+
+function showHelpTour() {
+  onbEl = null; // force fresh start
+  startOnboarding();
+}
 document.getElementById('onboarding-overlay').addEventListener('click',function(e){if(e.target===this)dismissOnboarding();});
 
 // ═══════════════════════════════════════════════════
@@ -2276,7 +2494,7 @@ function toggleFavorite(traderId){
     if(favoriteTraderIds.length>=5){showToast('You can only favorite up to 5 traders','error');return;}
     favoriteTraderIds.push(traderId);
   }
-  localStorage.setItem('ta_favorites',JSON.stringify(favoriteTraderIds));
+  if(currentUser?.id)localStorage.setItem(`ta_favorites_${currentUser.id}`,JSON.stringify(favoriteTraderIds));
   // Update fav buttons on the greats grid
   document.querySelectorAll('.fav-btn').forEach(btn=>{
     const card=btn.closest('.trader-card-app');
@@ -2754,6 +2972,7 @@ function logTrade(){
     showToast('Ticker, trader, date, price, and shares are all required','error');
     return;
   }
+  if(!requireTier('pro','Trade Journal')) return;
   const trader=TRADERS.find(t=>t.id===traderId);
   const size=parseFloat((document.getElementById('jnl-size').value)||0)||(entryPrice*shares);
 
@@ -2768,7 +2987,24 @@ function logTrade(){
     aiAnalysis:null,
   };
   journalEntries.unshift(tx);
-  localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
+  if(currentUser?.id)localStorage.setItem(`ta_journal_${currentUser.id}`,JSON.stringify(journalEntries));
+
+  // Sync to Supabase for cross-device persistence
+  if(sb && currentUser?.id){
+    sb.from('trade_journal').insert({
+      user_id: currentUser.id,
+      ticker: tx.ticker,
+      trader_id: tx.traderId,
+      trader_name: tx.traderName,
+      type: tx.type,
+      price: tx.price,
+      date: tx.date,
+      shares: tx.shares,
+      size: tx.size,
+      exit_pct: tx.exitPct,
+      thesis: tx.thesis,
+    }).then(({error})=>{ if(error) console.warn('Journal sync failed:',error.message); });
+  }
 
   // Reset form fields
   ['jnl-ticker','jnl-entry-price','jnl-shares','jnl-thesis','jnl-size'].forEach(id=>{
@@ -2841,12 +3077,13 @@ function toggleJournalEntry(id){
 
 function deleteJournalEntry(id){
   journalEntries=journalEntries.filter(e=>e.id!==id);
-  localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
+  if(currentUser?.id)localStorage.setItem(`ta_journal_${currentUser.id}`,JSON.stringify(journalEntries));
   renderJournal();
   showToast('Trade removed','info');
 }
 
 async function postMortemTrade(id){
+  if(!requireTier('elite','AI Post-mortem')) return;
   const entry=journalEntries.find(e=>e.id===id);
   if(!entry)return;
   const trader=TRADERS.find(t=>t.id===entry.traderId);
@@ -2877,7 +3114,7 @@ Was this trade consistent with your methodology? What did I do right? What did I
     const text=data.content?.[0]?.text||'Analysis unavailable.';
     entry.aiAnalysis=text;
     journalEntries=journalEntries.map(e=>e.id===id?entry:e);
-    localStorage.setItem('ta_journal',JSON.stringify(journalEntries));
+    if(currentUser?.id)localStorage.setItem(`ta_journal_${currentUser.id}`,JSON.stringify(journalEntries));
     if(el){el.innerHTML='<div style="margin-bottom:12px;"><span style="font-family:var(--mono);font-size:9px;color:var(--emerald);text-transform:uppercase;letter-spacing:0.1em;">'+escHtml(entry.traderName)+' post-mortem</span><div class="journal-ai-response" style="margin-top:6px;">'+formatAI(text)+'</div></div>';}
     queryCount++;document.getElementById('stat-queries').textContent=queryCount;
   }catch(err){
