@@ -210,6 +210,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 .trader-tab:hover{border-color:var(--border-light);color:var(--off-white);}
 .trader-tab.active{border-color:var(--emerald-dim);color:var(--emerald);background:var(--emerald-bg);}
 .trader-tab.scanned::after{content:'●';margin-left:5px;font-size:7px;color:var(--emerald);vertical-align:middle;}
+.trader-tab.fav-tab{font-weight:600;}
 .trader-tab.scanning{opacity:0.6;cursor:wait;}
 .picks-scan-btn{display:flex;align-items:center;gap:6px;}
 .picks-scan-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
@@ -407,6 +408,14 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 .arch-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
 .arch-dot-sm{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 
+/* MOBILE PICKS SELECTOR */
+.picks-mobile-select{display:none;width:100%;background:var(--navy);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-family:var(--sans);font-size:13px;color:var(--white);outline:none;margin-bottom:14px;}
+.picks-mobile-select:focus{border-color:var(--emerald-dim);}
+@media(max-width:768px){
+  .trader-tab-row{display:none!important;}
+  .picks-mobile-select{display:block;}
+}
+
 /* PICKS ENTRY/EXIT STRUCTURE */
 .pick-trade-structure{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
 .pts-cell{background:var(--navy);border-radius:var(--radius);padding:8px 10px;border:1px solid var(--border);}
@@ -587,7 +596,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
       <svg class="nav-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Daily Picks<span class="nav-badge badge-elite">ELITE</span>
     </button>
     <button class="nav-item" data-view="watchlist" onclick="navigate('watchlist',this)">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist<span class="nav-badge badge-pro">PRO</span>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist
     </button>
     <button class="nav-item" data-view="compare" onclick="navigate('compare',this)">
       <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Compare<span class="nav-badge badge-elite">ELITE</span>
@@ -632,7 +641,7 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
       <button id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <button class="topbar-btn topbar-btn-ghost" onclick="showHelpTour()" title="How to use Trader Atlas" style="margin-right:4px;">?</button>
+      <button onclick="showHelpTour()" title="How to use Trader Atlas" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;font-family:var(--mono);font-size:10px;color:var(--slate);cursor:pointer;margin-right:8px;letter-spacing:0.04em;transition:all 0.15s;" onmouseover="this.style.color='var(--emerald)';this.style.borderColor='var(--emerald-dim)';" onmouseout="this.style.color='var(--slate)';this.style.borderColor='var(--border)';">? How to use</button>
       <button class="topbar-btn topbar-btn-ghost" onclick="signOut()">Sign out</button>
     </div>
   </header>
@@ -739,7 +748,20 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 
     <!-- THE GREATS -->
     <div class="view" id="view-greats">
-      <div class="page-header"><h1>The 25 Greats</h1><p>Select a trader to open the AI engine with their methodology loaded.</p></div>
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1>The 25 Greats</h1>
+          <p>Select a trader to open the AI Engine. <strong>Star traders</strong> to add them to your Daily Picks universe.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;display:flex;align-items:center;gap:10px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--slate);">Daily picks universe:</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:600;" id="fav-counter">0 / 5 selected</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--slate);text-align:right;" id="fav-tier-hint">Pro: 5 traders · Free: 2 traders</div>
+        </div>
+      </div>
       <div class="traders-filter-row" id="traders-filter-row"></div>
       <div class="traders-grid-app" id="traders-grid-app"></div>
     </div>
@@ -801,11 +823,26 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
         </div>
       </div>
       <!-- Trader tab row — all 25 traders -->
+      <!-- Mobile: dropdown selector (hidden on desktop) -->
+      <select class="picks-mobile-select" id="picks-mobile-select" onchange="switchPicksTraderById(this.value)">
+        <option value="">Select a trader...</option>
+      </select>
+      <!-- Desktop: tab row (hidden on mobile) -->
       <div class="trader-tab-row" id="picks-trader-tabs"></div>
+      <!-- Favorites callout if no favorites set -->
+      <div id="picks-no-favs-nudge" style="display:none;background:var(--navy-mid);border:1px solid rgba(212,160,23,0.25);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--gold)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;color:var(--off-white);font-weight:500;margin-bottom:2px;">No traders in your picks universe yet</div>
+          <div style="font-size:11px;color:var(--slate);">Star traders in The 25 Greats to auto-scan them here every morning.</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="navigate('greats',document.querySelector('[data-view=greats]'))">Star traders →</button>
+      </div>
+
       <!-- Refresh bar -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
         <button class="picks-refresh-btn" id="picks-refresh-btn" onclick="refreshActivePicks()">
-          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh picks
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Re-scan active trader
         </button>
         <span class="picks-timestamp" id="picks-timestamp"></span>
       </div>
@@ -1085,9 +1122,9 @@ body{background:var(--navy);color:var(--off-white);font-family:var(--sans);-webk
 // ── App configuration — replace YOUR_ values with real keys ──────────
 // SUPABASE_URL and SUPABASE_ANON_KEY: supabase.com → your project → Settings → API
 // POLYGON_KEY: polygon.io → dashboard → API Keys
-const SUPABASE_URL      = 'https://jjwwixhnfoxybkfhhznk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd3dpeGhuZm94eWJrZmhoem5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjY3NTEsImV4cCI6MjEwMTU0Mjc1MX0.VGh1am1t26aCZzwzJpAsWUxMiU8GUFygIJZrWiFfHS4';
-const POLYGON_KEY       = '5G0UR0p__2Jrb9MjgVnLxUOLuLBDloMV';
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const POLYGON_KEY       = 'YOUR_POLYGON_KEY';
 const DEMO_MODE         = true; // flip false when Stripe live
 
 // ── PRICING TIERS ───────────────────────────────────────────────────
@@ -1095,10 +1132,14 @@ const DEMO_MODE         = true; // flip false when Stripe live
 // Pro:   $19/mo — all 25 traders, picks for 5 favorites, journal
 // Elite: $39/mo — picks for all 25, AI post-mortems, compare, social signals
 const TIER_FEATURES = {
-  free:  { traders: 3,  picks: false, journal: false, compare: false, postMortem: false },
-  pro:   { traders: 25, picks: 5,     journal: true,  compare: false, postMortem: false },
-  elite: { traders: 25, picks: 25,    journal: true,  compare: true,  postMortem: true  },
+  free:  { traders: 3,  picks: false, journal: false, compare: false, postMortem: false, maxFavs: 2 },
+  pro:   { traders: 25, picks: 5,     journal: true,  compare: false, postMortem: false, maxFavs: 5 },
+  elite: { traders: 25, picks: 25,    journal: true,  compare: true,  postMortem: true,  maxFavs: 5 },
 };
+
+function getMaxFavs() {
+  return TIER_FEATURES[getUserTier()]?.maxFavs || 2;
+}
 
 function getUserTier() {
   if (DEMO_MODE) return 'elite';
@@ -1512,13 +1553,16 @@ async function scanTraderPicks(trader) {
     let socialContext = '';
     try {
       const socialTargets = universe.slice(0, 4);
+      // Reddit public JSON — no auth required, commercial use permitted for analysis
+      // Note: move to /api/social.js for production to avoid per-IP rate limits
       const redditResults = await Promise.allSettled(
         socialTargets.map(t =>
-          fetch(`https://www.reddit.com/search.json?q=${t}&sort=hot&limit=3&t=day`,
-            { headers: { 'User-Agent': 'TraderAtlas/1.0' } })
-          .then(r => r.json())
+          fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(t)}&sort=hot&limit=3&t=day&raw_json=1`,
+            { headers: { 'User-Agent': 'TraderAtlas:1.0 (educational analysis tool)' } })
+          .then(r => { if(!r.ok) throw new Error('Reddit '+r.status); return r.json(); })
           .then(d => ({ ticker: t, posts: d?.data?.children?.length || 0,
             titles: (d?.data?.children||[]).slice(0,2).map(c=>c.data?.title||'').filter(Boolean) }))
+          .catch(() => ({ ticker: t, posts: 0, titles: [] }))
         )
       );
       const signals = redditResults
@@ -1541,16 +1585,19 @@ async function scanTraderPicks(trader) {
     try {
       if (trader.id === 'camillo' || trader.arch?.includes('Social') || trader.arch?.includes('Momentum')) {
         const stTargets = universe.slice(0, 4);
+        // StockTwits API — free tier allows commercial educational use
+        // Note: move to /api/social.js for production to centralise rate limiting
         const stResults = await Promise.allSettled(
           stTargets.map(t =>
             fetch(`https://api.stocktwits.com/api/2/streams/symbol/${t}.json`)
-              .then(r => r.json())
+              .then(r => { if(!r.ok) throw new Error('StockTwits '+r.status); return r.json(); })
               .then(d => ({
                 ticker: t,
                 bullish: d?.messages?.filter(m => m.entities?.sentiment?.basic === 'Bullish').length || 0,
                 bearish: d?.messages?.filter(m => m.entities?.sentiment?.basic === 'Bearish').length || 0,
                 total: d?.messages?.length || 0,
               }))
+              .catch(() => ({ ticker: t, bullish: 0, bearish: 0, total: 0 }))
           )
         );
         const signals = stResults
@@ -1610,6 +1657,13 @@ async function scanTraderPicks(trader) {
 
 // switchPicksTrader — base implementation (wrapped below with timestamp logic)
 function switchPicksTrader(trader) {
+  // Gate non-favorite traders for free users
+  const tier = getUserTier();
+  if(tier === 'free' && !favoriteTraderIds.includes(trader.id) && favoriteTraderIds.length > 0){
+    showToast(`Free tier: picks only for your ${getMaxFavs()} starred traders. Upgrade to Pro for all 25.`, 'info');
+    return;
+  }
+
   activePicsTrader = trader;
   document.querySelectorAll('.trader-tab').forEach(t => t.classList.remove('active'));
   const tab=document.querySelector(`.trader-tab[data-trader="${trader.id}"]`);
@@ -1698,8 +1752,10 @@ const ONBOARDING_STEPS = [
 
 // STATE
 let currentUser=null,selectedTrader=null,currentTicker='',chatHistory=[],watchlistItems=[],queryCount=0,sb=null,isStreaming=false,onboardingStep=0;
-let favoriteTraderIds=JSON.parse(localStorage.getItem('ta_favorites')||'[]');
-let journalEntries=JSON.parse(localStorage.getItem('ta_journal')||'[]');
+// Initialized empty — hydrateFromNetwork loads correct user-keyed data after auth
+// The DOMContentLoaded block restores from lastUserId cache for instant UI
+let favoriteTraderIds=[];
+let journalEntries=[];
 
 // INIT
 // ── FAST INIT — paint shell immediately, hydrate from network in parallel ──
@@ -1739,6 +1795,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const cachedFavs = localStorage.getItem(`ta_favorites_${lastUserId}`);
       if (cachedFavs) favoriteTraderIds = JSON.parse(cachedFavs);
     } catch(e) {}
+  }
+
+  // Update dash-sub for users with no cache (new users)
+  if(!lastUserId) {
+    const subEl = document.getElementById('dash-sub');
+    if(subEl) subEl.textContent = 'Star traders in The 25 Greats to prime your daily picks.';
   }
 
   // 4. Hide loading shell
@@ -1976,6 +2038,16 @@ function buildUI(){
 
   // Education nudge and ticker scroll — fire after UI is painted
   renderDashEduNudge();
+
+  // Update fav counter with correct tier
+  updateFavCounter();
+  const hintEl = document.getElementById('fav-tier-hint');
+  if(hintEl){
+    const tier = getUserTier();
+    const max = getMaxFavs();
+    if(tier==='free') hintEl.textContent = `Free tier: ${max} traders · Upgrade to Pro for 5`;
+    else hintEl.textContent = `${tier.charAt(0).toUpperCase()+tier.slice(1)}: up to ${max} traders`;
+  }
   setTimeout(initTickerScroll, 500); // slight delay so page renders first
 
   // Auto-load first trader (Camillo) when picks view is first opened
@@ -2056,6 +2128,13 @@ function navigate(viewId,btn){
     document.getElementById('market-data-card').style.display='none';
   }
   if(viewId==='picks'){
+    // Show nudge if no favorites
+    const nudge = document.getElementById('picks-no-favs-nudge');
+    if(nudge) nudge.style.display = favoriteTraderIds.length === 0 ? 'flex' : 'none';
+
+    // Update tab row — favorites first, then rest
+    rebuildPicksTabRow();
+
     if(!activePicsTrader){
       const firstTrader=favoriteTraderIds.length>0
         ?TRADERS.find(t=>t.id===favoriteTraderIds[0])||TRADERS[0]
@@ -2230,12 +2309,22 @@ function togglePick(btn){
 function analyzeFromPick(ticker,traderId){
   const trader=TRADERS.find(t=>t.id===traderId);
   if(!trader)return;
+
+  // Warn if user has an active conversation with a different trader
+  if(selectedTrader && selectedTrader.id !== traderId && chatHistory.length > 0){
+    if(!confirm(`Switch to ${trader.name} and analyze ${ticker}? This will start a new conversation.`)) return;
+  }
+
   currentTicker=ticker;
   document.getElementById('global-ticker').value=ticker;
   document.getElementById('market-data-card').style.display='block';
   document.getElementById('mdc-ticker').textContent=ticker;
   selectTrader(trader);
-  setTimeout(()=>{document.getElementById('chat-input').value=`Analyze ${ticker} through your full methodology. Give me your complete assessment.`;sendMessage();},400);
+  navigate('engine', document.querySelector('[data-view="engine"]'));
+  setTimeout(()=>{
+    const ci=document.getElementById('chat-input');
+    if(ci){ci.value=`Analyze ${ticker} through your full methodology. Give me your complete assessment.`;sendMessage();}
+  },400);
 }
 
 // WATCHLIST
@@ -2363,14 +2452,14 @@ const ONB_STEPS = [
     position: 'center',
   },
   {
-    title: 'Your Traders',
-    body: 'Click any trader card to open the <strong>AI Engine</strong> and have a direct conversation. Ask them to analyze a ticker, explain their methodology, or find opportunities right now.',
-    target: '#quick-trader-grid',
-    position: 'bottom',
+    title: 'Build your picks universe',
+    body: 'Go to <strong>The 25 Greats</strong> and star up to 5 traders. Each starred trader scans their stock universe every morning using their methodology. Pro members get 5 traders, free members get 2.',
+    target: '[data-view="greats"]',
+    position: 'right',
   },
   {
     title: 'Daily Picks',
-    body: 'Every morning, your favorite traders scan their universe for setups that match their methodology. Star up to <strong>5 traders</strong> in The 25 Greats to prime your daily scan.',
+    body: 'Your starred traders run automatically when you open Daily Picks. Each pick includes an <strong>entry zone, stop loss, and take profit</strong> grounded in that trader\'s exact methodology.',
     target: '[data-view="picks"]',
     position: 'right',
   },
@@ -2482,34 +2571,92 @@ function showHelpTour() {
   onbEl = null; // force fresh start
   startOnboarding();
 }
-document.getElementById('onboarding-overlay').addEventListener('click',function(e){if(e.target===this)dismissOnboarding();});
+// onboarding-overlay click: handled inside startOnboarding dynamically
 
 // ═══════════════════════════════════════════════════
 // FAVORITES
 // ═══════════════════════════════════════════════════
 function toggleFavorite(traderId){
-  const idx=favoriteTraderIds.indexOf(traderId);
-  if(idx>-1){favoriteTraderIds.splice(idx,1);}
-  else{
-    if(favoriteTraderIds.length>=5){showToast('You can only favorite up to 5 traders','error');return;}
+  const maxFavs = getMaxFavs();
+  const tier = getUserTier();
+  const idx = favoriteTraderIds.indexOf(traderId);
+
+  if(idx > -1){
+    // Always allow removing
+    favoriteTraderIds.splice(idx, 1);
+  } else {
+    // Check tier limit
+    if(favoriteTraderIds.length >= maxFavs){
+      if(tier === 'free'){
+        showToast(`Free tier: up to ${maxFavs} traders. Upgrade to Pro for 5 daily picks.`, 'info');
+        // Nudge upgrade
+        setTimeout(()=>navigate('settings', document.querySelector('[data-view=settings]')), 1500);
+      } else {
+        showToast(`Pro limit: ${maxFavs} traders maximum for daily picks`, 'error');
+      }
+      return;
+    }
     favoriteTraderIds.push(traderId);
   }
+
   if(currentUser?.id)localStorage.setItem(`ta_favorites_${currentUser.id}`,JSON.stringify(favoriteTraderIds));
-  // Update fav buttons on the greats grid
+
+  // Refresh the greats grid to update all star states + counter
+  buildTradersGrid(TRADERS);
+  updateFavCounter();
+  rebuildDashQuickGrid();
+
+  const count = favoriteTraderIds.length;
+  if(idx > -1){
+    showToast('Removed from favorites', 'info');
+  } else {
+    showToast(`${count}/${maxFavs} traders selected for daily picks`, 'success');
+    if(count === maxFavs) showToast('Daily picks universe complete — open Daily Picks to run scans', 'info');
+  }
+}
+
+// Update the counter badge on The 25 Greats header
+function updateFavCounter(){
+  const maxFavs = getMaxFavs();
+  const count = favoriteTraderIds.length;
+  const el = document.getElementById('fav-counter');
+  if(el){
+    el.textContent = `${count} / ${maxFavs} selected`;
+    el.style.color = count >= maxFavs ? 'var(--emerald)' : 'var(--slate)';
+  }
+  // Grey out stars that can't be used (at limit, not already selected)
   document.querySelectorAll('.fav-btn').forEach(btn=>{
-    const card=btn.closest('.trader-card-app');
-    if(!card)return;
-    const nameEl=card.querySelector('.tca-name');
-    const t=TRADERS.find(x=>x.name===nameEl?.textContent);
-    if(!t)return;
-    const active=favoriteTraderIds.includes(t.id);
-    btn.classList.toggle('active',active);
-    btn.querySelector('svg').setAttribute('fill',active?'currentColor':'none');
-    btn.title=active?'Remove from favorites':'Add to favorites';
+    const card = btn.closest('.trader-card-app');
+    if(!card) return;
+    const nameEl = card.querySelector('.tca-name');
+    const t = TRADERS.find(x=>x.name===nameEl?.textContent);
+    if(!t) return;
+    const isSelected = favoriteTraderIds.includes(t.id);
+    const atLimit = !isSelected && count >= maxFavs;
+    btn.style.opacity = atLimit ? '0.3' : '1';
+    btn.title = isSelected ? 'Remove from daily picks' : atLimit ? `Limit reached (${maxFavs} max)` : 'Add to daily picks';
   });
-  const count=favoriteTraderIds.length;
-  showToast(idx>-1?'Removed from favorites':`${count}/5 favorites selected`,'success');
-  if(count>=5)showToast('Tip: go to My Favorites to see your daily watchlist','info');
+}
+
+// Rebuild dashboard quick grid from favorites
+function rebuildDashQuickGrid(){
+  const qg = document.getElementById('quick-trader-grid');
+  if(!qg) return;
+  qg.innerHTML = '';
+  const idsToShow = favoriteTraderIds.length >= 3
+    ? favoriteTraderIds.slice(0, 6)
+    : ['camillo','minervini','livermore','buffett','lynch','cameron'];
+  idsToShow.forEach(id=>{
+    const t = TRADERS.find(x=>x.id===id);
+    if(!t) return;
+    const qac = archColor(t.arch);
+    const b = document.createElement('button');
+    b.className = 'quick-trader-btn';
+    b.style.borderTopColor = qac.color;
+    b.innerHTML = `<div style="font-family:var(--mono);font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;color:${qac.color};">${t.arch}</div><div class="qtb-name">${t.name}</div>`;
+    b.onclick = ()=>{dashSetQuickTrader(t);b.parentElement.querySelectorAll('.quick-trader-btn').forEach(x=>x.style.outline='none');b.style.outline='1px solid '+qac.color;};
+    qg.appendChild(b);
+  });
 }
 
 function renderFavorites(){
@@ -2587,6 +2734,90 @@ function closeStyleGuide(e){
 // ═══════════════════════════════════════════════════
 // REFRESH PICKS
 // ═══════════════════════════════════════════════════
+// Rebuild picks tab row: favorites section first, then rest
+function rebuildPicksTabRow(){
+  const tabRow = document.getElementById('picks-trader-tabs');
+  if(!tabRow) return;
+  tabRow.innerHTML = '';
+
+  // Helper to create a tab button
+  const makeTab = (t, isFav) => {
+    const ac = archColor(t.arch);
+    const hasCached = !!PICKS_CACHE[t.id];
+    const btn = document.createElement('button');
+    btn.className = 'trader-tab' + (hasCached?' scanned':'') + (isFav?' fav-tab':'');
+    btn.dataset.trader = t.id;
+    btn.style.cssText = `border-color:${ac.color}40;${isFav?'border-color:'+ac.color+';':''}`;
+    btn.innerHTML = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${ac.color};margin-right:5px;flex-shrink:0;vertical-align:middle;"></span>${t.name}${isFav?'<span style="margin-left:4px;font-size:7px;color:var(--gold);">★</span>':''}`;
+    btn.title = t.arch + (hasCached?' — picks loaded':'') + (isFav?' · In your picks universe':'');
+    btn.onclick = ()=>switchPicksTrader(t);
+    return btn;
+  };
+
+  // Favorites section header
+  if(favoriteTraderIds.length > 0){
+    const favHeader = document.createElement('div');
+    favHeader.style.cssText = 'width:100%;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;margin-top:2px;';
+    favHeader.textContent = '★ Your picks universe';
+    tabRow.appendChild(favHeader);
+
+    favoriteTraderIds.forEach(id=>{
+      const t = TRADERS.find(x=>x.id===id);
+      if(t) tabRow.appendChild(makeTab(t, true));
+    });
+
+    // Divider
+    const div = document.createElement('div');
+    div.style.cssText = 'width:100%;height:1px;background:var(--border);margin:8px 0 4px;';
+    tabRow.appendChild(div);
+
+    const allHeader = document.createElement('div');
+    allHeader.style.cssText = 'width:100%;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px;';
+    allHeader.textContent = 'All traders';
+    tabRow.appendChild(allHeader);
+  }
+
+  // All non-favorite traders
+  TRADERS.filter(t=>!favoriteTraderIds.includes(t.id)).forEach(t=>{
+    tabRow.appendChild(makeTab(t, false));
+  });
+
+  // Mark active tab
+  if(activePicsTrader){
+    document.querySelector(`.trader-tab[data-trader="${activePicsTrader.id}"]`)?.classList.add('active');
+  }
+
+  // Sync mobile dropdown
+  const msel = document.getElementById('picks-mobile-select');
+  if(msel){
+    msel.innerHTML = '<option value="">Select a trader...</option>';
+    // Favorites first
+    if(favoriteTraderIds.length>0){
+      const favGroup = document.createElement('optgroup');
+      favGroup.label = '★ Your picks universe';
+      favoriteTraderIds.forEach(id=>{
+        const t=TRADERS.find(x=>x.id===id);
+        if(t){const o=document.createElement('option');o.value=t.id;o.textContent=t.name+(PICKS_CACHE[t.id]?' ✓':'');favGroup.appendChild(o);}
+      });
+      msel.appendChild(favGroup);
+      const allGroup = document.createElement('optgroup');
+      allGroup.label = 'All traders';
+      TRADERS.filter(t=>!favoriteTraderIds.includes(t.id)).forEach(t=>{
+        const o=document.createElement('option');o.value=t.id;o.textContent=t.name+(PICKS_CACHE[t.id]?' ✓':'');allGroup.appendChild(o);
+      });
+      msel.appendChild(allGroup);
+    } else {
+      TRADERS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name+(PICKS_CACHE[t.id]?' ✓':'');msel.appendChild(o);});
+    }
+    if(activePicsTrader) msel.value = activePicsTrader.id;
+  }
+}
+
+function switchPicksTraderById(id){
+  const t = TRADERS.find(x=>x.id===id);
+  if(t) switchPicksTrader(t);
+}
+
 function refreshActivePicks(){
   if(!activePicsTrader||picksIsScanning)return;
   delete PICKS_CACHE[activePicsTrader.id];
@@ -2839,7 +3070,17 @@ async function fetchMarket(params) {
   const resp = await fetch(`/api/market?${qs}`);
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Market API ${resp.status}`);
+    const msg = err.error || `Market API ${resp.status}`;
+    // Surface specific errors to the user
+    if(resp.status === 404){
+      console.warn('[fetchMarket] 404 — api/market.js not deployed to Vercel');
+      showToast('Market data unavailable — api/market.js not deployed', 'error');
+    } else if(resp.status === 401 || resp.status === 403){
+      showToast('Polygon key invalid — check POLYGON_KEY in Vercel env vars', 'error');
+    } else if(resp.status === 429){
+      showToast('Polygon rate limit hit — free tier: 5 calls/min', 'info');
+    }
+    throw new Error(msg);
   }
   return resp.json();
 }
@@ -3032,7 +3273,10 @@ function buildExitRow(){
 function renderJournal(){
   const c=document.getElementById('journal-entries');
   if(!journalEntries.length){
-    c.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><h3>No trades logged yet</h3><p>Log your first trade above to start building your post-mortem history.</p></div>`;
+    // Single empty state — no conflicting messages
+    const posEl=document.getElementById('open-positions-table');
+    if(posEl)posEl.innerHTML='<div style="padding:16px;text-align:center;color:var(--slate);font-size:12px;">No positions yet.</div>';
+    c.innerHTML='<div style="padding:16px;text-align:center;color:var(--slate);font-size:12px;">No closed trades yet.</div>';
     return;
   }
   c.innerHTML='<div class="card-header" style="background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;margin-bottom:0;"><span class="card-title">Trade log</span></div>';
@@ -3084,16 +3328,28 @@ function deleteJournalEntry(id){
 
 async function postMortemTrade(id){
   if(!requireTier('elite','AI Post-mortem')) return;
-  const entry=journalEntries.find(e=>e.id===id);
-  if(!entry)return;
+
+  // Look up from closed trades (has correct entryPrice/exitPrice fields)
+  // Fall back to raw journal entry for open positions
+  const closed = buildClosedTrades();
+  const entry = closed.find(e=>e.id===id) || journalEntries.find(e=>e.id===id);
+  if(!entry) return;
+
   const trader=TRADERS.find(t=>t.id===entry.traderId);
-  if(!trader)return;
+  if(!trader) return;
   showToast(`${trader.name} analyzing your ${entry.ticker} trade...`,'info');
-  // Open the accordion
+
   const el=document.getElementById('je-'+id);
   if(el){el.classList.add('open');el.innerHTML='<div style="color:var(--slate);font-size:12px;padding:4px 0;">Analyzing...</div>';}
+
+  // Build outcome string from correct fields
+  const entryP = entry.entryPrice || entry.price || 0;
+  const exitP = entry.exitPrice || null;
+  const entryD = entry.entryDate || entry.date || '—';
+  const exitD = entry.exitDate || null;
+  const pnl = entry.pnlPct ? `${parseFloat(entry.pnlPct)>=0?'profit of':'loss of'} ${Math.abs(entry.pnlPct)}%` : (entry.outcome||'open');
+
   try{
-    const outcome=entry.pnlPct?`${parseFloat(entry.pnlPct)>=0?'profit of':'loss of'} ${Math.abs(entry.pnlPct)}%`:entry.outcome;
     const resp=await fetch('/api/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -3102,9 +3358,9 @@ async function postMortemTrade(id){
 
 You are giving an honest, educational post-mortem of a real trade the user made. Speak as ${trader.name}. Be direct. If the user did something right, say so. If they made a mistake according to your methodology, explain what it was and what should have been done differently. Educational analysis only.`,
         messages:[{role:'user',content:`Post-mortem my ${entry.ticker} trade:
-- Entry: $${entry.entryPrice} on ${entry.entryDate}
-- Exit: ${entry.exitPrice?'$'+entry.exitPrice+' on '+entry.exitDate:'Still open'}
-- Result: ${outcome}
+- Entry: $${entryP} on ${entryD}
+- Exit: ${exitP ? '$'+exitP+' on '+exitD : 'Still open'}
+- Result: ${pnl}
 - My original thesis: "${entry.thesis||'Not recorded'}"
 
 Was this trade consistent with your methodology? What did I do right? What did I do wrong? What should I look for next time?`}]
@@ -3131,7 +3387,13 @@ function copyMessage(text){
 }
 
 // AUTH
-async function signOut(){if(sb)await sb.auth.signOut();window.location.href='login.html';}
+async function signOut(){
+  if(!confirm('Sign out of Trader Atlas?')) return;
+  // Clear cached user identity so next user doesn't see stale data
+  localStorage.removeItem('ta_last_user_id');
+  if(sb) await sb.auth.signOut();
+  window.location.href='login.html';
+}
 
 // TOAST
 function showToast(msg,type='info'){
